@@ -1,4 +1,5 @@
 ﻿import { ObeliskClientAuthentication } from "../utils/Authentication";
+import { ObeliskSpatialQueryCodeAndResults } from "./ObeliskQueryInterfaces";
 
 const fetch = require('node-fetch');
 const querystring = require('querystring');
@@ -7,7 +8,7 @@ export class ObeliskQuerySpatial {
     static readonly address: string = 'https://obelisk.ilabt.imec.be';
     constructor(private scopeId: string, private auth: ObeliskClientAuthentication, private log: Boolean = true) { }
 
-    public async GetRawEventsFromTo(metricId: string, geoHash: string, fromTime_ms: number, toTime_ms: number) {
+    public async GetRawEventsFromTo(metricId: string, geoHash: string, fromTime_ms: number, toTime_ms: number): Promise<ObeliskSpatialQueryCodeAndResults> {
         let resultsStatus: number;
         let results: any;
         let url = ObeliskQuerySpatial.address
@@ -37,9 +38,10 @@ export class ObeliskQuerySpatial {
                 results = jsonData;
             })
             .catch(err => console.error(err));
-        return [resultsStatus, results];
+        return { responseCode: resultsStatus,results:results }
+        //return [resultsStatus, results];
     }
-    public async GetRawEventsDateFromTo(metricId: string, geoHash: string,date:string, fromTime_ms?: number, toTime_ms?: number) {
+    public async GetRawEventsDateFromTo(metricId: string, geoHash: string, date: string, fromTime_ms?: number, toTime_ms?: number): Promise<ObeliskSpatialQueryCodeAndResults> {
         let resultsStatus: number;
         let results: any;
         let url = ObeliskQuerySpatial.address
@@ -61,6 +63,6 @@ export class ObeliskQuerySpatial {
                 results = jsonData;
             })
             .catch(err => console.error(err));
-        return [resultsStatus, results];
+        return { responseCode: resultsStatus, results: results };
     }
 }

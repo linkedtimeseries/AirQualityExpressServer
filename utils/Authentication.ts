@@ -10,8 +10,6 @@ interface Tokens {
 export class ObeliskClientAuthentication {    
     private authTokens: Tokens; 
     private RPTTokens: Tokens;
-    //private expiresDate: number;
-    //private refresh_expires_in: number;
     private expires_in: number;
     static readonly url_post_authenticate: string = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
     static readonly url_post_access: string = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
@@ -42,7 +40,7 @@ export class ObeliskClientAuthentication {
         //console.log("R-RPT:" + this.RPTTokens.access_token);
         //console.log("R-RPT:" + this.RPTTokens.refresh_token);
     }
-    private async authenticateToObelisk()/*: Tokens*/ {
+    private async authenticateToObelisk() {
         let authString = (new Buffer(this.client_id + ':' + this.client_secret)).toString('base64');
         let headersPost = {
             'Authorization': 'Basic ' + authString,
@@ -67,7 +65,6 @@ export class ObeliskClientAuthentication {
             'Authorization': 'Bearer ' + this.authTokens.access_token,
             'Content-type': 'application/x-www-form-urlencoded',
         };
-        //this.expiresDate = Date.now();
         await fetch(ObeliskClientAuthentication.url_post_access, {
             method: 'POST',
             headers: headersPost,
@@ -79,7 +76,6 @@ export class ObeliskClientAuthentication {
                     refresh_token: json.refresh_token
                 };
                 this.expires_in = json.expires_in;
-                //this.expiresDate += (json.refresh_expires_in*0.9); //10 % marge
             })
             .catch(err => console.error(err));    
     }
@@ -98,7 +94,7 @@ export class ObeliskClientAuthentication {
             client_secret: this.client_secret
         }
         let expiresDate = Date.now();
-        console.log('refresh:' + expiresDate + ',' + new Date(expiresDate));
+        //console.log('refresh:' + expiresDate + ',' + new Date(expiresDate));
         await fetch(ObeliskClientAuthentication.url_post_refreshRPT, {
             method: 'POST',
             headers: headersPost,
@@ -108,12 +104,11 @@ export class ObeliskClientAuthentication {
                 this.RPTTokens = {
                     access_token: json.access_token,
                     refresh_token: json.refresh_token
-                }
-                //this.refresh_expires_in = json.refresh_expires_in;
+                }                
                 this.expires_in = json.expires_in; //unit = seconds                
             })
             .catch(err => console.error(err));
-        console.log(this.RPTTokens.access_token);
+        //console.log(this.RPTTokens.access_token);
     }
     public showTokens(): Tokens {
         return this.RPTTokens;

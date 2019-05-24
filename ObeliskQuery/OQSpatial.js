@@ -47,7 +47,8 @@ class ObeliskQuerySpatial {
                 results = jsonData;
             })
                 .catch(err => console.error(err));
-            return [resultsStatus, results];
+            return { responseCode: resultsStatus, results: results };
+            //return [resultsStatus, results];
         });
     }
     GetRawEventsDateFromTo(metricId, geoHash, date, fromTime_ms, toTime_ms) {
@@ -73,7 +74,7 @@ class ObeliskQuerySpatial {
                 results = jsonData;
             })
                 .catch(err => console.error(err));
-            return [resultsStatus, results];
+            return { responseCode: resultsStatus, results: results };
         });
     }
 }

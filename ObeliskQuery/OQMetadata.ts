@@ -1,4 +1,5 @@
 ﻿import { ObeliskClientAuthentication } from "../utils/Authentication";
+import { ObeliskMetadataMetricsQueryCodeAndResults, ObeliskMetadataThingsQueryCodeAndResults } from "./ObeliskQueryInterfaces";
 
 const fetch = require('node-fetch');
 
@@ -6,7 +7,7 @@ export class ObeliskQueryMetadata {
     static readonly address: string = 'https://obelisk.ilabt.imec.be';
     constructor(private scopeId: string, private auth: ObeliskClientAuthentication, private log: Boolean=true) { }
 
-    public async GetMetrics() {
+    public async GetMetrics(): Promise<ObeliskMetadataMetricsQueryCodeAndResults> {
         let resultsStatus: number;
         let results: any;
         let url = ObeliskQueryMetadata.address + '/api/v1/scopes/' + this.scopeId + '/metrics';
@@ -21,9 +22,10 @@ export class ObeliskQueryMetadata {
                 results = jsonData;
             })
             .catch(err => console.error(err));
-        return [resultsStatus, results];
+        //return [resultsStatus, results];
+        return { responseCode: resultsStatus, results: results };
     }
-    public async GetThings() {
+    public async GetThings(): Promise<ObeliskMetadataThingsQueryCodeAndResults> {
         let resultsStatus: number;
         let results: any;
         let url = ObeliskQueryMetadata.address + '/api/v1/scopes/' + this.scopeId + '/things';
@@ -38,6 +40,6 @@ export class ObeliskQueryMetadata {
                 results = jsonData;
             })
             .catch(err => console.error(err));
-        return [resultsStatus, results];
+        return { responseCode: resultsStatus, results: results };
     }
 }

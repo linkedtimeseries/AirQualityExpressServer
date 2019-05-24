@@ -34,6 +34,9 @@
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
+    <TypeScriptCompile Include="ObeliskQuery\ObeliskQueryInterfaces.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="ObeliskQuery\OQMetadata.ts" />
     <TypeScriptCompile Include="ObeliskQuery\OQSpatial.ts" />
     <TypeScriptCompile Include="routes\dataRouter.ts" />

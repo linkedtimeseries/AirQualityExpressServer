@@ -31,7 +31,8 @@ class ObeliskQueryMetadata {
                 results = jsonData;
             })
                 .catch(err => console.error(err));
-            return [resultsStatus, results];
+            //return [resultsStatus, results];
+            return { responseCode: resultsStatus, results: results };
         });
     }
     GetThings() {
@@ -50,7 +51,7 @@ class ObeliskQueryMetadata {
                 results = jsonData;
             })
                 .catch(err => console.error(err));
-            return [resultsStatus, results];
+            return { responseCode: resultsStatus, results: results };
         });
     }
 }
