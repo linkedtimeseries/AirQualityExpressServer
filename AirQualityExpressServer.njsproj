@@ -49,6 +49,7 @@
     <Content Include="views\layout.pug" />
     <Content Include="views\error.pug" />
     <TypeScriptCompile Include="utils\Authentication.ts" />
+    <TypeScriptCompile Include="utils\GeoHashUtils.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="controllers\" />
