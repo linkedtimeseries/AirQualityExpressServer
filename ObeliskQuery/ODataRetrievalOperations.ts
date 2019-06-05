@@ -29,17 +29,21 @@ export class ObeliskDataRetrievalOperations {
             //    console.log(res.headers.raw());
             //    console.log(res.headers.get('content-type'));
             //    return res;
-            //});
-            .then(res => Promise.all([res.status, res.json()]))
-            .then(([status, jsonData]) => {
-                if (this.log) {
-                    console.log(jsonData);
-                    console.log(status);
-                }
-                resultsStatus = status;
-                results = jsonData;
+            //})
+            .then(res => {
+                resultsStatus = res.status;
+                return res;
             })
-            .catch(err => console.error(err));
+            .then(res => res.json())
+            .then(jsonData => results = jsonData)
+            .catch(
+                err => {
+                    results = err;
+                    if (this.log) {
+                        console.error(err);
+                    }
+                }
+            );           
         return { responseCode: resultsStatus, results: results }       
     }
     public async GetEventsLatest(metricId: string, geoHash: string[]): Promise<ObeliskSpatialQueryCodeAndResults> {
@@ -61,16 +65,20 @@ export class ObeliskDataRetrievalOperations {
             //    console.log(res.headers.get('content-type'));
             //    return res;
             //});
-            .then(res => Promise.all([res.status, res.json()]))
-            .then(([status, jsonData]) => {
-                if (this.log) {
-                    console.log(jsonData);
-                    console.log(status);
-                }
-                resultsStatus = status;
-                results = jsonData;
+            .then(res => {
+                resultsStatus = res.status;
+                return res;
             })
-            .catch(err => console.error(err));
+            .then(res => res.json())
+            .then(jsonData => results = jsonData)
+            .catch(
+                err => {
+                    results = err;
+                    if (this.log) {
+                        console.error(err);
+                    }
+                }
+            );           
         return { responseCode: resultsStatus, results: results }
     }
 

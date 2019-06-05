@@ -17,27 +17,20 @@ export class ObeliskQuerySpatial {
             + '/' + metricId + '/events'
             + '?' + querystring.stringify({ from: fromTime_ms.toString(), to: toTime_ms.toString() });
         await fetch(url, { headers: this.auth.resourceCallAuthorizationHeader() })
-            //.then(res => {
-            //    console.log(res.ok);
-            //    console.log(res.status);
-            //    console.log(res.statusText);
-            //    console.log(res.headers.raw());
-            //    console.log(res.headers.get('content-type'));
-            //    return res;
-            //})
-            //.then(res => res.json())
-            //.then(json => console.log(json))
-            //.catch(err => console.error(err));
-            .then(res => Promise.all([res.status, res.json()]))
-            .then(([status, jsonData]) => {
-                if (this.log) {
-                    console.log(jsonData);
-                    console.log(status);
-                }
-                resultsStatus = status;
-                results = jsonData;
+            .then(res => {
+                resultsStatus = res.status;
+                return res;
             })
-            .catch(err => console.error(err));
+            .then(res => res.json())
+            .then(jsonData => results = jsonData)
+            .catch(
+                err => {
+                    results = err;
+                    if (this.log) {
+                        console.error(err);
+                    }
+                }
+            );
         return { responseCode: resultsStatus,results:results }
         //return [resultsStatus, results];
     }
@@ -53,16 +46,20 @@ export class ObeliskQuerySpatial {
             url += '?' + querystring.stringify({ from: fromTime_ms.toString(), to: toTime_ms.toString() });
         }
         await fetch(url, { headers: this.auth.resourceCallAuthorizationHeader() })
-            .then(res => Promise.all([res.status, res.json()]))
-            .then(([status, jsonData]) => {
-                if (this.log) {
-                    console.log(jsonData);
-                    console.log(status);
-                }
-                resultsStatus = status;
-                results = jsonData;
+            .then(res => {
+                resultsStatus = res.status;
+                return res;
             })
-            .catch(err => console.error(err));
+            .then(res => res.json())
+            .then(jsonData => results = jsonData)
+            .catch(
+                err => {
+                    results = err;
+                    if (this.log) {
+                        console.error(err);
+                    }
+                }
+            );
         return { responseCode: resultsStatus, results: results };
     }
 }
