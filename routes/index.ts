@@ -12,8 +12,8 @@ const router = express.Router();
 router.get('/', async function (req, res) {
 
     //let testQuery: string = "DR";
-    //let testQuery: string = "Meta";
-    let testQuery: string = "Spatial";
+    let testQuery: string = "Meta";
+    //let testQuery: string = "Spatial";
 
     let auth = new ObeliskClientAuthentication('smart-flanders-linked-air-quality', '87bf0a72-bbdf-4aa6-962f-12ae1bf82d80', false);
     await auth.initTokens();
@@ -31,10 +31,11 @@ router.get('/', async function (req, res) {
         }
         case "Meta": {
             ////Metadata queries - test
-            let Qapi = new ObeliskQueryMetadata('cot.airquality', auth);
+            let Qapi = new ObeliskQueryMetadata('cot.airquality', auth,true);
             let results = await Qapi.GetMetrics();
             //results = await Qapi.GetThings();
             res.send(results);
+            break;
         }
         case "Spatial": {
             let SQ = new ObeliskQuerySpatial('cot.airquality', auth,false);
@@ -44,6 +45,7 @@ router.get('/', async function (req, res) {
            
             //await new Promise(resolve => setTimeout(resolve, 3000));
             res.send(results);
+            break;
         }
 
     }

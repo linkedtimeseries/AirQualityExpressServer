@@ -49,7 +49,7 @@ class ObeliskQuerySpatial {
             let url = ObeliskQuerySpatial.address
                 + '/api/v1/scopes/' + this.scopeId
                 + '/locations/' + geoHash
-                + '/' + metricId + '/eventsX'
+                + '/' + metricId + '/events'
                 + '/' + date;
             if ((fromTime_ms !== undefined) && (toTime_ms !== undefined)) {
                 url += '?' + querystring.stringify({ from: fromTime_ms.toString(), to: toTime_ms.toString() });
