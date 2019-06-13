@@ -7,14 +7,13 @@ export interface ObeliskSpatialQueryCodeAndResults {
     results: ObeliskSpatialQueryResults
 }
 
-
 export interface ObeliskMetadataMetricsQueryResults {
     id: string,
     description: string
 }
 export interface ObeliskMetadataMetricsQueryCodeAndResults {
     responseCode: number,
-    results: ObeliskMetadataMetricsQueryResults
+    results: ObeliskMetadataMetricsQueryResults[]
 }
 
 export interface ObeliskMetadataThingsQueryResults {
@@ -23,5 +22,5 @@ export interface ObeliskMetadataThingsQueryResults {
 }
 export interface ObeliskMetadataThingsQueryCodeAndResults {
     responseCode: number,
-    results: ObeliskMetadataThingsQueryResults
+    results: ObeliskMetadataThingsQueryResults[]
 }

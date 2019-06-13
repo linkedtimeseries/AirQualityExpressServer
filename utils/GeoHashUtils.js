@@ -13,20 +13,20 @@ class GeoHashUtils {
     }
     getGeoHashes(precision = 7) {
         let stop = false;
+        let down = false;
         while (!stop) {
             var ha = geohash.bboxes(this.bbox.minLat, this.bbox.minLon, this.bbox.maxLat, this.bbox.maxLon, precision);
-            console.log('p:', precision, ha.length);
+            //console.log('p:', precision, ha.length);
             stop = true;
-            if (ha.length == 1) {
-                stop = false;
+            if ((ha.length == 1) && down) {
+                stop = true;
                 precision++;
+                down = false;
             }
             if (ha.length > 10) {
-                if (stop)
-                    stop = false;
-                else
-                    stop = true;
+                stop = false;
                 precision--;
+                down = true;
             }
         }
         return ha;

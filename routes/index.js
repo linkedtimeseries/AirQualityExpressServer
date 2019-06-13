@@ -39,6 +39,9 @@ router.get('/', function (req, res) {
                 ////Metadata queries - test
                 let Qapi = new OQMetadata_1.ObeliskQueryMetadata('cot.airquality', auth, true);
                 let results = yield Qapi.GetMetrics();
+                //for (let x of results.results) {
+                //    console.log("x:", x.id);
+                //}
                 //results = await Qapi.GetThings();
                 res.send(results);
                 break;

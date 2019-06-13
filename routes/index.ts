@@ -5,7 +5,7 @@ import express = require('express');
 import { ObeliskClientAuthentication } from '../utils/Authentication';
 import { ObeliskQueryMetadata } from '../ObeliskQuery/OQMetadata';
 import { ObeliskQuerySpatial } from '../ObeliskQuery/OQSpatial';
-import { ObeliskSpatialQueryCodeAndResults } from '../ObeliskQuery/ObeliskQueryInterfaces';
+import { ObeliskSpatialQueryCodeAndResults, ObeliskMetadataMetricsQueryCodeAndResults } from '../ObeliskQuery/ObeliskQueryInterfaces';
 import { ObeliskDataRetrievalOperations } from '../ObeliskQuery/ODataRetrievalOperations';
 const router = express.Router();
 
@@ -32,7 +32,10 @@ router.get('/', async function (req, res) {
         case "Meta": {
             ////Metadata queries - test
             let Qapi = new ObeliskQueryMetadata('cot.airquality', auth,true);
-            let results = await Qapi.GetMetrics();
+            let results: ObeliskMetadataMetricsQueryCodeAndResults = await Qapi.GetMetrics();
+            //for (let x of results.results) {
+            //    console.log("x:", x.id);
+            //}
             //results = await Qapi.GetThings();
             res.send(results);
             break;
