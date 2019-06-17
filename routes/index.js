@@ -16,18 +16,19 @@ const Authentication_1 = require("../utils/Authentication");
 const OQMetadata_1 = require("../ObeliskQuery/OQMetadata");
 const OQSpatial_1 = require("../ObeliskQuery/OQSpatial");
 const ODataRetrievalOperations_1 = require("../ObeliskQuery/ODataRetrievalOperations");
+const AirQualityServerConfig_1 = require("../AirQualityServerConfig");
 const router = express.Router();
 router.get('/', function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         //let testQuery: string = "DR";
         let testQuery = "Meta";
         //let testQuery: string = "Spatial";
-        let auth = new Authentication_1.ObeliskClientAuthentication('smart-flanders-linked-air-quality', '87bf0a72-bbdf-4aa6-962f-12ae1bf82d80', false);
+        let auth = new Authentication_1.ObeliskClientAuthentication(AirQualityServerConfig_1.AirQualityServerConfig.ObeliskClientId, AirQualityServerConfig_1.AirQualityServerConfig.ObeliskClientSecret, false);
         yield auth.initTokens();
         //res.send(auth.showTokens());
         switch (testQuery) {
             case "DR": {
-                let DR = new ODataRetrievalOperations_1.ObeliskDataRetrievalOperations('cot.airquality', auth, true);
+                let DR = new ODataRetrievalOperations_1.ObeliskDataRetrievalOperations(AirQualityServerConfig_1.AirQualityServerConfig.scopeId, auth, true);
                 let results = yield DR.GetEvents('airquality.no2', ['u155kr', 'u155ks'], 1514799902820, 1514799909820);
                 //let results = await DR.GetEvents('airquality.no2', ['u155kr', 'u155ks']);
                 //let results = await DR.GetEventsLatest('airquality.no2', ['u155kr', 'u155ks']);
@@ -37,7 +38,7 @@ router.get('/', function (req, res) {
             }
             case "Meta": {
                 ////Metadata queries - test
-                let Qapi = new OQMetadata_1.ObeliskQueryMetadata('cot.airquality', auth, true);
+                let Qapi = new OQMetadata_1.ObeliskQueryMetadata(AirQualityServerConfig_1.AirQualityServerConfig.scopeId, auth, true);
                 let results = yield Qapi.GetMetrics();
                 //for (let x of results.results) {
                 //    console.log("x:", x.id);
@@ -47,7 +48,7 @@ router.get('/', function (req, res) {
                 break;
             }
             case "Spatial": {
-                let SQ = new OQSpatial_1.ObeliskQuerySpatial('cot.airquality', auth, false);
+                let SQ = new OQSpatial_1.ObeliskQuerySpatial(AirQualityServerConfig_1.AirQualityServerConfig.scopeId, auth, false);
                 let results = yield SQ.GetRawEventsDateFromTo('airquality.no2', 'u155k', '20190521');
                 //let results: ObeliskSpatialQueryCodeAndResults = await SQ.GetRawEventsFromTo('airquality.no2', 'u155kr', 1514799902820, 1514799909820);
                 //await new Promise(resolve => setTimeout(resolve, 3000));

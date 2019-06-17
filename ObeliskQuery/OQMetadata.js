@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const AirQualityServerConfig_1 = require("../AirQualityServerConfig");
 const fetch = require('node-fetch');
 class ObeliskQueryMetadata {
     constructor(scopeId, auth, log = true) {
@@ -68,6 +69,6 @@ class ObeliskQueryMetadata {
         });
     }
 }
-ObeliskQueryMetadata.address = 'https://obelisk.ilabt.imec.be';
+ObeliskQueryMetadata.address = AirQualityServerConfig_1.AirQualityServerConfig.ObeliskAddress;
 exports.ObeliskQueryMetadata = ObeliskQueryMetadata;
 //# sourceMappingURL=OQMetadata.js.map

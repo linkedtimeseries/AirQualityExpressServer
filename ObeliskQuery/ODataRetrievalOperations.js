@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const AirQualityServerConfig_1 = require("../AirQualityServerConfig");
 const fetch = require('node-fetch');
 const querystring = require('querystring');
 class ObeliskDataRetrievalOperations {
@@ -90,6 +91,6 @@ class ObeliskDataRetrievalOperations {
         });
     }
 }
-ObeliskDataRetrievalOperations.address = 'https://obelisk.ilabt.imec.be';
+ObeliskDataRetrievalOperations.address = AirQualityServerConfig_1.AirQualityServerConfig.ObeliskAddress;
 exports.ObeliskDataRetrievalOperations = ObeliskDataRetrievalOperations;
 //# sourceMappingURL=ODataRetrievalOperations.js.map

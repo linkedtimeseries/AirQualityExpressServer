@@ -1,11 +1,12 @@
 ﻿import { ObeliskClientAuthentication } from "../utils/Authentication";
 import { IObeliskSpatialQueryCodeAndResults } from "./ObeliskQueryInterfaces";
+import { AirQualityServerConfig } from "../AirQualityServerConfig";
 
 const fetch = require('node-fetch');
 const querystring = require('querystring');
 
 export class ObeliskQuerySpatial {
-    static readonly address: string = 'https://obelisk.ilabt.imec.be';
+    static readonly address: string = AirQualityServerConfig.ObeliskAddress;
     constructor(private scopeId: string, private auth: ObeliskClientAuthentication, private log: Boolean = true) { }
 
     public async GetRawEventsFromTo(metricId: string, geoHash: string, fromTime_ms: number, toTime_ms: number): Promise<IObeliskSpatialQueryCodeAndResults> {

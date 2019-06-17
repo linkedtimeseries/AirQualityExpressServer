@@ -1,4 +1,6 @@
-﻿const fetch = require('node-fetch');
+﻿import { AirQualityServerConfig } from "../AirQualityServerConfig";
+
+const fetch = require('node-fetch');
 const querystring = require('querystring');
 const interval = require('interval-promise')
 
@@ -11,9 +13,9 @@ export class ObeliskClientAuthentication {
     private authTokens: Tokens; 
     private RPTTokens: Tokens;
     private expires_in: number;
-    static readonly url_post_authenticate: string = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
-    static readonly url_post_access: string = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
-    static readonly url_post_refreshRPT: string = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
+    //static readonly url_post_authenticate: string = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
+    //static readonly url_post_access: string = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
+    //static readonly url_post_refreshRPT: string = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
 
     constructor(private client_id: string, private client_secret: string, private log: Boolean = true) {
     }
@@ -46,8 +48,8 @@ export class ObeliskClientAuthentication {
             'Authorization': 'Basic ' + authString,
             'Content-type': 'application/x-www-form-urlencoded',            
         };
-    
-        await fetch(ObeliskClientAuthentication.url_post_authenticate, {
+
+        await fetch(AirQualityServerConfig.Obelisk_url_post_authenticate, {
             method: 'POST',
             headers: headersPost,
             body: querystring.stringify({ grant_type: 'client_credentials' })})          
@@ -65,7 +67,7 @@ export class ObeliskClientAuthentication {
             'Authorization': 'Bearer ' + this.authTokens.access_token,
             'Content-type': 'application/x-www-form-urlencoded',
         };
-        await fetch(ObeliskClientAuthentication.url_post_access, {
+        await fetch(AirQualityServerConfig.Obelisk_url_post_access, {
             method: 'POST',
             headers: headersPost,
             body: querystring.stringify({ grant_type: 'urn:ietf:params:oauth:grant-type:uma-ticket', audience: 'policy-enforcer' })})
@@ -95,7 +97,7 @@ export class ObeliskClientAuthentication {
         }
         let expiresDate = Date.now();
         //console.log('refresh:' + expiresDate + ',' + new Date(expiresDate));
-        await fetch(ObeliskClientAuthentication.url_post_refreshRPT, {
+        await fetch(AirQualityServerConfig.Obelisk_url_post_refreshRPT, {
             method: 'POST',
             headers: headersPost,
             body: querystring.stringify(params)})

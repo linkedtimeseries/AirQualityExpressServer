@@ -1,10 +1,11 @@
 ﻿import { ObeliskClientAuthentication } from "../utils/Authentication";
 import { IObeliskMetadataMetricsQueryCodeAndResults, IObeliskMetadataThingsQueryCodeAndResults } from "./ObeliskQueryInterfaces";
+import { AirQualityServerConfig } from "../AirQualityServerConfig";
 
 const fetch = require('node-fetch');
 
 export class ObeliskQueryMetadata {
-    static readonly address: string = 'https://obelisk.ilabt.imec.be';
+    static readonly address: string = AirQualityServerConfig.ObeliskAddress;
     constructor(private scopeId: string, private auth: ObeliskClientAuthentication, private log: Boolean=true) { }
 
     public async GetMetrics(): Promise<IObeliskMetadataMetricsQueryCodeAndResults> {

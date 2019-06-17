@@ -8,10 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const AirQualityServerConfig_1 = require("../AirQualityServerConfig");
 const fetch = require('node-fetch');
 const querystring = require('querystring');
 const interval = require('interval-promise');
 class ObeliskClientAuthentication {
+    //static readonly url_post_authenticate: string = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
+    //static readonly url_post_access: string = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
+    //static readonly url_post_refreshRPT: string = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
     constructor(client_id, client_secret, log = true) {
         this.client_id = client_id;
         this.client_secret = client_secret;
@@ -47,7 +51,7 @@ class ObeliskClientAuthentication {
                 'Authorization': 'Basic ' + authString,
                 'Content-type': 'application/x-www-form-urlencoded',
             };
-            yield fetch(ObeliskClientAuthentication.url_post_authenticate, {
+            yield fetch(AirQualityServerConfig_1.AirQualityServerConfig.Obelisk_url_post_authenticate, {
                 method: 'POST',
                 headers: headersPost,
                 body: querystring.stringify({ grant_type: 'client_credentials' })
@@ -68,7 +72,7 @@ class ObeliskClientAuthentication {
                 'Authorization': 'Bearer ' + this.authTokens.access_token,
                 'Content-type': 'application/x-www-form-urlencoded',
             };
-            yield fetch(ObeliskClientAuthentication.url_post_access, {
+            yield fetch(AirQualityServerConfig_1.AirQualityServerConfig.Obelisk_url_post_access, {
                 method: 'POST',
                 headers: headersPost,
                 body: querystring.stringify({ grant_type: 'urn:ietf:params:oauth:grant-type:uma-ticket', audience: 'policy-enforcer' })
@@ -101,7 +105,7 @@ class ObeliskClientAuthentication {
             };
             let expiresDate = Date.now();
             //console.log('refresh:' + expiresDate + ',' + new Date(expiresDate));
-            yield fetch(ObeliskClientAuthentication.url_post_refreshRPT, {
+            yield fetch(AirQualityServerConfig_1.AirQualityServerConfig.Obelisk_url_post_refreshRPT, {
                 method: 'POST',
                 headers: headersPost,
                 body: querystring.stringify(params)
@@ -122,8 +126,5 @@ class ObeliskClientAuthentication {
         return this.RPTTokens;
     }
 }
-ObeliskClientAuthentication.url_post_authenticate = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
-ObeliskClientAuthentication.url_post_access = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
-ObeliskClientAuthentication.url_post_refreshRPT = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
 exports.ObeliskClientAuthentication = ObeliskClientAuthentication;
 //# sourceMappingURL=Authentication.js.map
