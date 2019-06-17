@@ -1,8 +1,10 @@
 ﻿import { ObeliskClientAuthentication } from "../utils/Authentication";
 import { ObeliskDataRetrievalOperations } from "../ObeliskQuery/ODataRetrievalOperations";
-import { ObeliskSpatialQueryCodeAndResults, ObeliskMetadataMetricsQueryCodeAndResults } from "../ObeliskQuery/ObeliskQueryInterfaces";
+import { IObeliskSpatialQueryCodeAndResults, IObeliskMetadataMetricsQueryCodeAndResults } from "../ObeliskQuery/ObeliskQueryInterfaces";
 import { GeoHashUtils, Tile } from "../utils/GeoHashUtils";
 import { ObeliskQueryMetadata } from "../ObeliskQuery/OQMetadata";
+import { IQueryResults, IMetricResults } from "../API/APIInterfaces";
+import { QueryResults, MetricResults } from "../API/QueryResults";
 
 
 let auth: ObeliskClientAuthentication = null;
@@ -28,7 +30,7 @@ async function getObeliskDataRetrievalOperations(scopeId: string): Promise<Obeli
 
 let metricIds: string[] = new Array();
 async function startGetMetricIds(scopeId: string): Promise<void> {
-    let metadata: ObeliskMetadataMetricsQueryCodeAndResults = await (new ObeliskQueryMetadata('cot.airquality', await getAuth(), true)).GetMetrics();
+    let metadata: IObeliskMetadataMetricsQueryCodeAndResults = await (new ObeliskQueryMetadata('cot.airquality', await getAuth(), true)).GetMetrics();
     for (let x of metadata.results) {
         metricIds.push(x.id);
     }
@@ -39,20 +41,57 @@ async function getMetricIds(scopeId: string): Promise<string[]> {
 }
 
 
-exports.data_get_z_x_y_page = async function (req, res) : Promise<void> {
+exports.data_get_z_x_y = async function (req, res) : Promise<void> {
     let scopeId: string = 'cot.airquality';
-    let metricId: string = 'airquality.no2';
+    //let metricId: string = 'airquality.no2';
+    let metrics: string[];
+    let queryResults: IQueryResults;
 
-    let tile: Tile = { x: Number(req.params.tile_x), y: Number(req.params.tile_y), zoom: Number(req.params.zoom) };  
-    //let t: Tile = { x: 4195, y: 2734, zoom: 13 };
-    let geoHashUtiles = new GeoHashUtils(tile);
-    let gHashes: string[] = geoHashUtiles.getGeoHashes();
-    console.log(gHashes);
-    let m = await getMetricIds(scopeId);
-    console.log(m);
-    let DR: ObeliskDataRetrievalOperations = await getObeliskDataRetrievalOperations(scopeId);
-    let results: ObeliskSpatialQueryCodeAndResults = await DR.GetEventsLatest(metricId, gHashes);
-    //let results: ObeliskSpatialQueryCodeAndResults = await DR.GetEvents(metricId, gHashes, 1514799902820, 1514799909820);
-    res.send(results);
+    try {
+        //get metrics from request
+        if (req.query.metrics) {
+            metrics = req.query.metrics.split(',');
+            console.log('metrics:', metrics);
+        }
+        else {
+            //let m = await getMetricIds(scopeId);
+            //console.log(m);
+            console.log("no metrics");            
+            throw "no metrics";
+        }
+        queryResults = new QueryResults();
+
+        //convert tile to geoHashes
+        let tile: Tile = { x: Number(req.params.tile_x), y: Number(req.params.tile_y), zoom: Number(req.params.zoom) };
+        //let t: Tile = { x: 4195, y: 2734, zoom: 13 };
+        let geoHashUtiles = new GeoHashUtils(tile);
+        let gHashes: string[] = geoHashUtiles.getGeoHashes();
+        console.log(gHashes);
+        let DR: ObeliskDataRetrievalOperations = await getObeliskDataRetrievalOperations(scopeId);
+        for (let metricId of metrics) {
+            console.log(metricId);
+            let qRes: IObeliskSpatialQueryCodeAndResults = await DR.GetEventsLatest(metricId, gHashes);
+
+            queryResults.columns = qRes.results.columns;
+            let metricResults: IMetricResults = new MetricResults(metricId);
+
+            //filter geoHashes - within tile requirement
+            let colNr = qRes.results.columns.indexOf('geohash');
+            //console.log(colNr);
+            for (let r of qRes.results.values) {
+                let ii = geoHashUtiles.isWithinTile(r[colNr].toString());
+                //console.log(ii, r[colNr]);
+                if (ii) {
+                    metricResults.AddValues(r);
+                }
+            }
+            queryResults.AddMetricResults(metricResults);          
+        }       
+        res.send(queryResults);
+    }
+    catch (error) {
+        console.log(error);
+        res.send(error);
+    }    
     //res.send('Not Implemented : \nzoom :' + req.params.zoom + '\ntile_x : ' + req.params.tile_x + '\ntile_y : ' + req.params.tile_y+' page : '+req.param('page'));
 }

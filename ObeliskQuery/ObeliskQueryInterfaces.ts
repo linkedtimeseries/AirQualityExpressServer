@@ -1,26 +1,26 @@
-﻿export interface ObeliskSpatialQueryResults {
+﻿export interface IObeliskSpatialQueryResults {
     columns: string[],
     values : (string|number)[][]
 }
-export interface ObeliskSpatialQueryCodeAndResults {
+export interface IObeliskSpatialQueryCodeAndResults {
     responseCode: number,
-    results: ObeliskSpatialQueryResults
+    results: IObeliskSpatialQueryResults
 }
 
-export interface ObeliskMetadataMetricsQueryResults {
+export interface IObeliskMetadataMetricsQueryResults {
     id: string,
     description: string
 }
-export interface ObeliskMetadataMetricsQueryCodeAndResults {
+export interface IObeliskMetadataMetricsQueryCodeAndResults {
     responseCode: number,
-    results: ObeliskMetadataMetricsQueryResults[]
+    results: IObeliskMetadataMetricsQueryResults[]
 }
 
-export interface ObeliskMetadataThingsQueryResults {
+export interface IObeliskMetadataThingsQueryResults {
     id: string,
     displayName: string
 }
-export interface ObeliskMetadataThingsQueryCodeAndResults {
+export interface IObeliskMetadataThingsQueryCodeAndResults {
     responseCode: number,
-    results: ObeliskMetadataThingsQueryResults[]
+    results: IObeliskMetadataThingsQueryResults[]
 }

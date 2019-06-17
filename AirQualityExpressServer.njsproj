@@ -33,6 +33,12 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="API\APIInterfaces.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="API\QueryResults.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="controllers\dataController.ts" />
     <TypeScriptCompile Include="ObeliskQuery\ObeliskQueryInterfaces.ts">
@@ -60,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="controllers\" />
+    <Folder Include="API\" />
     <Folder Include="ObeliskQuery\" />
     <Folder Include="public\" />
     <Folder Include="public\images\" />

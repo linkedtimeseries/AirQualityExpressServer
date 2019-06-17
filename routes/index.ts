@@ -5,7 +5,7 @@ import express = require('express');
 import { ObeliskClientAuthentication } from '../utils/Authentication';
 import { ObeliskQueryMetadata } from '../ObeliskQuery/OQMetadata';
 import { ObeliskQuerySpatial } from '../ObeliskQuery/OQSpatial';
-import { ObeliskSpatialQueryCodeAndResults, ObeliskMetadataMetricsQueryCodeAndResults } from '../ObeliskQuery/ObeliskQueryInterfaces';
+import { IObeliskSpatialQueryCodeAndResults, IObeliskMetadataMetricsQueryCodeAndResults } from '../ObeliskQuery/ObeliskQueryInterfaces';
 import { ObeliskDataRetrievalOperations } from '../ObeliskQuery/ODataRetrievalOperations';
 const router = express.Router();
 
@@ -32,7 +32,7 @@ router.get('/', async function (req, res) {
         case "Meta": {
             ////Metadata queries - test
             let Qapi = new ObeliskQueryMetadata('cot.airquality', auth,true);
-            let results: ObeliskMetadataMetricsQueryCodeAndResults = await Qapi.GetMetrics();
+            let results: IObeliskMetadataMetricsQueryCodeAndResults = await Qapi.GetMetrics();
             //for (let x of results.results) {
             //    console.log("x:", x.id);
             //}
@@ -43,7 +43,7 @@ router.get('/', async function (req, res) {
         case "Spatial": {
             let SQ = new ObeliskQuerySpatial('cot.airquality', auth,false);
 
-            let results: ObeliskSpatialQueryCodeAndResults = await SQ.GetRawEventsDateFromTo('airquality.no2', 'u155k', '20190521');
+            let results: IObeliskSpatialQueryCodeAndResults = await SQ.GetRawEventsDateFromTo('airquality.no2', 'u155k', '20190521');
             //let results: ObeliskSpatialQueryCodeAndResults = await SQ.GetRawEventsFromTo('airquality.no2', 'u155kr', 1514799902820, 1514799909820);
            
             //await new Promise(resolve => setTimeout(resolve, 3000));

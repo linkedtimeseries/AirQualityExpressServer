@@ -1,5 +1,5 @@
 ﻿import { ObeliskClientAuthentication } from "../utils/Authentication";
-import { ObeliskSpatialQueryCodeAndResults } from "./ObeliskQueryInterfaces";
+import { IObeliskSpatialQueryCodeAndResults } from "./ObeliskQueryInterfaces";
 
 const fetch = require('node-fetch');
 const querystring = require('querystring');
@@ -8,7 +8,7 @@ export class ObeliskDataRetrievalOperations {
     static readonly address: string = 'https://obelisk.ilabt.imec.be';
     constructor(private scopeId: string, private auth: ObeliskClientAuthentication, private log: Boolean = true) { }
 
-    public async GetEvents(metricId: string, geoHash: string[], fromTime_ms?: number, toTime_ms?: number,limit?:number): Promise<ObeliskSpatialQueryCodeAndResults> {
+    public async GetEvents(metricId: string, geoHash: string[], fromTime_ms?: number, toTime_ms?: number,limit?:number): Promise<IObeliskSpatialQueryCodeAndResults> {
         let resultsStatus: number;
         let results: any;
         let url = ObeliskDataRetrievalOperations.address
@@ -46,7 +46,7 @@ export class ObeliskDataRetrievalOperations {
             );           
         return { responseCode: resultsStatus, results: results }       
     }
-    public async GetEventsLatest(metricId: string, geoHash: string[]): Promise<ObeliskSpatialQueryCodeAndResults> {
+    public async GetEventsLatest(metricId: string, geoHash: string[]): Promise<IObeliskSpatialQueryCodeAndResults> {
         let resultsStatus: number;
         let results: any;
         let url = ObeliskDataRetrievalOperations.address
