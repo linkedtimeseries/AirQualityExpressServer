@@ -77,7 +77,8 @@ function processEvents(data, geoHashUtils, metrics) {
     return queryResults;
 }
 //results are 'latest'
-exports.data_get_z_x_y = function (req, res) {
+//TO DO : add date and convert to start/stop values for 1 day (hour)
+exports.data_get_z_x_y_page = function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         let metrics;
         try {
@@ -94,14 +95,18 @@ exports.data_get_z_x_y = function (req, res) {
             }
             //convert tile to geoHashes
             let tile = { x: Number(req.params.tile_x), y: Number(req.params.tile_y), zoom: Number(req.params.zoom) };
-            //let t: Tile = { x: 4195, y: 2734, zoom: 13 };
+            let date = (new Date(req.query.page)).setUTCHours(0, 0, 0, 0);
+            let fromDate = date;
+            let toDate = date + 86400000; //window is 1 day
+            console.log(fromDate, toDate, new Date(fromDate), new Date(toDate));
             let geoHashUtiles = new GeoHashUtils_1.GeoHashUtils(tile);
             let gHashes = geoHashUtiles.getGeoHashes();
             console.log(gHashes);
             let DR = yield getObeliskDataRetrievalOperations(AirQualityServerConfig_1.AirQualityServerConfig.scopeId);
             let qRes = new Array();
             for (let i = 0; i < metrics.length; i++) {
-                qRes[i] = DR.GetEventsLatest(metrics[i], gHashes);
+                qRes[i] = DR.GetEvents(metrics[i], gHashes, fromDate, toDate);
+                //qRes[i] = DR.GetEventsLatest(metrics[i], gHashes);
             }
             yield Promise.all(qRes).then(data => { return processEvents(data, geoHashUtiles, metrics); }).then(data => res.send(data));
         }
