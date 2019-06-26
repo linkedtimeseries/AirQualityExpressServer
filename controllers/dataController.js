@@ -14,6 +14,7 @@ const GeoHashUtils_1 = require("../utils/GeoHashUtils");
 const OQMetadata_1 = require("../ObeliskQuery/OQMetadata");
 const QueryResults_1 = require("../API/QueryResults");
 const AirQualityServerConfig_1 = require("../AirQualityServerConfig");
+const JSONLDDataBuilder_1 = require("../JSONLD/JSONLDDataBuilder");
 let auth = null;
 function startAuth() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -76,8 +77,7 @@ function processEvents(data, geoHashUtils, metrics) {
     }
     return queryResults;
 }
-//results are 'latest'
-//TO DO : add date and convert to start/stop values for 1 day (hour)
+//date is always UTC
 exports.data_get_z_x_y_page = function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         let metrics;
@@ -108,7 +108,13 @@ exports.data_get_z_x_y_page = function (req, res) {
                 qRes[i] = DR.GetEvents(metrics[i], gHashes, fromDate, toDate);
                 //qRes[i] = DR.GetEventsLatest(metrics[i], gHashes);
             }
-            yield Promise.all(qRes).then(data => { return processEvents(data, geoHashUtiles, metrics); }).then(data => res.send(data));
+            let QR = yield Promise.all(qRes).then(data => { return processEvents(data, geoHashUtiles, metrics); }); //.then(data => res.send(data));      
+            let builder = new JSONLDDataBuilder_1.JSONLDDataBuilder(QR);
+            builder.buildData();
+            let json = builder.getJSONLD();
+            console.log(json);
+            res.send(json);
+            //res.send(QR);
         }
         catch (error) {
             console.log(error);

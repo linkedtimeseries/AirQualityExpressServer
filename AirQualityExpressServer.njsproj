@@ -44,6 +44,12 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="controllers\dataController.ts" />
+    <TypeScriptCompile Include="JSONLD\JSONLDconfig.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="JSONLD\JSONLDDataBuilder.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="ObeliskQuery\ObeliskQueryInterfaces.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
@@ -70,6 +76,7 @@
   <ItemGroup>
     <Folder Include="controllers\" />
     <Folder Include="API\" />
+    <Folder Include="JSONLD\" />
     <Folder Include="ObeliskQuery\" />
     <Folder Include="public\" />
     <Folder Include="public\images\" />

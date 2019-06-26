@@ -6,6 +6,7 @@ import { ObeliskQueryMetadata } from "../ObeliskQuery/OQMetadata";
 import { IQueryResults, IMetricResults } from "../API/APIInterfaces";
 import { QueryResults, MetricResults } from "../API/QueryResults";
 import { AirQualityServerConfig } from "../AirQualityServerConfig";
+import { JSONLDDataBuilder } from "../JSONLD/JSONLDDataBuilder";
 
 
 let auth: ObeliskClientAuthentication = null;
@@ -93,7 +94,14 @@ exports.data_get_z_x_y_page = async function (req, res): Promise<void> {
             qRes[i] = DR.GetEvents(metrics[i], gHashes, fromDate, toDate);
             //qRes[i] = DR.GetEventsLatest(metrics[i], gHashes);
         }
-        await Promise.all(qRes).then(data => { return processEvents(data, geoHashUtiles, metrics); }).then(data => res.send(data));      
+        let QR:IQueryResults= await Promise.all(qRes).then(data => { return processEvents(data, geoHashUtiles, metrics); })//.then(data => res.send(data));      
+
+        let builder: JSONLDDataBuilder = new JSONLDDataBuilder(QR);
+        builder.buildData();
+        let json: string = builder.getJSONLD();
+        console.log(json);
+        res.send(json);
+        //res.send(QR);
     }
     catch (error) {
         console.log(error);
