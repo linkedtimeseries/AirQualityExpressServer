@@ -1,6 +1,7 @@
 ﻿import { IQueryResults } from "../API/APIInterfaces";
 import { JSONLDConfig } from "./JSONLDconfig";
 import { AirQualityServerConfig } from "../AirQualityServerConfig";
+var geohash = require('ngeohash');
 
 export class JSONLDDataBuilder {
     private QR: IQueryResults;
@@ -54,11 +55,47 @@ export class JSONLDDataBuilder {
         }
         return s;        
     }
+    private buildObservation(time: (number|string), value:(number|string), sensorId:string, geoHash:string, metricId:string): string {
+        let date = new Date(time);
+        var latlon = geohash.decode(geoHash);        
+        let observation = "{";
+        observation += '"@id":"' + JSONLDConfig.baseURL + metricId + "/" + sensorId + "/" + time + '"';
+        observation += ',"@type":"sosa:Observation"';
+        observation += ',"sosa:hasSimpleResult":' + value;
+        observation += ',"sosa:resultTime":"' + date.toISOString() + '"';
+        observation += ',"sosa:observedPoperty":"' + JSONLDConfig.baseURL + metricId + '"';
+        observation += ',"sosa:madeBySensor":"' + JSONLDConfig.baseURL + sensorId + '"';
+        observation += ',"sosa:hasFeatureOfInterest":"' + JSONLDConfig.baseURL + JSONLDConfig.FeatureOfInterest + '"';
+        observation += ',"geo:lat":' + latlon.latitude;
+        observation += ',"geo:long":'+latlon.longitude;
+        observation += "}";
+        return observation;
+    }
+    private buildObservations(): string {
+        let observations: string = "";
+        let colNrTime: number = this.QR.columns.indexOf(AirQualityServerConfig.timeColumnName);
+        let colNrValue: number = this.QR.columns.indexOf(AirQualityServerConfig.valueColumnName);
+        let colNrSensorId: number = this.QR.columns.indexOf(AirQualityServerConfig.sourceIdColumnName);
+        let colNrGeoHash: number = this.QR.columns.indexOf(AirQualityServerConfig.geoHashColumnName);
+
+        let i = 0;
+
+        for (let mr of this.QR.metricResults) {
+            for (let v of mr.values) {
+                observations += ',' + this.buildObservation(v[colNrTime], v[colNrValue], v[colNrSensorId].toString(), v[colNrGeoHash].toString(), mr.metricId);
+                i++;
+                if (i > 2) break;
+            }
+        }
+
+        return observations.substr(1);
+    }
     public buildData(): void {
         this.json = "{" + JSONLDConfig.context;
         this.json += ',"@graph":[' + this.buildFeatureOfInterest();
         this.json += ',' + this.buildObservableProperties();
         this.json += ',' + this.buildSensors();
+        this.json += ',' + this.buildObservations();
         this.json += "]}";       
     }
     public getJSONLD(): string {

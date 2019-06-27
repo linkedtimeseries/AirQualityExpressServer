@@ -61,7 +61,6 @@
     <TypeScriptCompile Include="routes\dataRouter.ts" />
     <TypeScriptCompile Include="routes\index.ts" />
     <TypeScriptCompile Include="routes\user.ts" />
-    <Content Include="obeliskConfig.json" />
     <Content Include="obeliskLogin.json">
       <SubType>Code</SubType>
     </Content>

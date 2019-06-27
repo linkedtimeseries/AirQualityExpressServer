@@ -1,1 +1,1 @@
-{"version":3,"file":"JSONLDconfig.js","sourceRoot":"","sources":["JSONLDconfig.ts"],"names":[],"mappings":";;AAAA,MAAsB,YAAY;;AACd,oBAAO,GAAW,cAAc;MACvC,sCAAsC;MACtC,iDAAiD;MACjD,GAAG,CAAC;AACG,8BAAiB,GAAW,YAAY,CAAC;AACzC,oBAAO,GAAW,0BAA0B,CAAC;AANjE,oCAOC"}
+{"version":3,"file":"JSONLDconfig.js","sourceRoot":"","sources":["JSONLDconfig.ts"],"names":[],"mappings":";;AAAA,MAAsB,YAAY;;AACd,oBAAO,GAAW,cAAc;MACvC,sCAAsC;MACtC,iDAAiD;MACjD,mDAAmD;MACnD,GAAG,CAAC;AACG,8BAAiB,GAAW,YAAY,CAAC;AACzC,oBAAO,GAAW,0BAA0B,CAAC;AAPjE,oCAQC"}

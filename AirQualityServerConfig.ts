@@ -6,6 +6,8 @@ export class AirQualityServerConfig {
     readonly ObeliskClientSecret: string;
     static readonly geoHashColumnName: string = 'geohash';
     static readonly sourceIdColumnName: string = 'sourceId';
+    static readonly timeColumnName: string = 'time';
+    static readonly valueColumnName: string = 'value';
     static readonly ObeliskAddress: string = 'https://obelisk.ilabt.imec.be';
     static readonly Obelisk_url_post_authenticate: string = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
     static readonly Obelisk_url_post_access: string = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';

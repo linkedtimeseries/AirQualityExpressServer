@@ -12,6 +12,8 @@ class AirQualityServerConfig {
 AirQualityServerConfig.scopeId = 'cot.airquality';
 AirQualityServerConfig.geoHashColumnName = 'geohash';
 AirQualityServerConfig.sourceIdColumnName = 'sourceId';
+AirQualityServerConfig.timeColumnName = 'time';
+AirQualityServerConfig.valueColumnName = 'value';
 AirQualityServerConfig.ObeliskAddress = 'https://obelisk.ilabt.imec.be';
 AirQualityServerConfig.Obelisk_url_post_authenticate = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
 AirQualityServerConfig.Obelisk_url_post_access = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
