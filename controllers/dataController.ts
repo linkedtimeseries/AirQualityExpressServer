@@ -45,9 +45,9 @@ async function getMetricIds(scopeId: string): Promise<string[]> {
 
 function processEvents(data: IObeliskSpatialQueryCodeAndResults[], geoHashUtils: GeoHashUtils, metrics): IQueryResults {
     let queryResults = new QueryResults();
-    queryResults.columns = data[0].results.columns;
     let id: number = 0;
     for (let d of data) {
+        if (queryResults.columns.length==0) queryResults.columns = d.results.columns;
         let metricResults: IMetricResults = new MetricResults(metrics[id]);
         id++;
         //filter geoHashes - within tile requirement
@@ -92,7 +92,7 @@ exports.data_get_z_x_y_page = async function (req, res): Promise<void> {
             qRes[i] = DR.GetEvents(metrics[i], gHashes, fromDate, toDate);
         }
         let QR:IQueryResults= await Promise.all(qRes).then(data => { return processEvents(data, geoHashUtiles, metrics); })//.then(data => res.send(data));      
-
+        
         let builder: JSONLDDataBuilder = new JSONLDDataBuilder(QR);
         builder.buildData();
         let json: string = builder.getJSONLD();

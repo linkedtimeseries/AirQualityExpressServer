@@ -61,9 +61,10 @@ function getMetricIds(scopeId) {
 }
 function processEvents(data, geoHashUtils, metrics) {
     let queryResults = new QueryResults_1.QueryResults();
-    queryResults.columns = data[0].results.columns;
     let id = 0;
     for (let d of data) {
+        if (queryResults.columns.length == 0)
+            queryResults.columns = d.results.columns;
         let metricResults = new QueryResults_1.MetricResults(metrics[id]);
         id++;
         //filter geoHashes - within tile requirement
