@@ -99,15 +99,12 @@ exports.data_get_z_x_y_page = function (req, res) {
             let date = (new Date(req.query.page)).setUTCHours(0, 0, 0, 0);
             let fromDate = date;
             let toDate = date + 86400000; //window is 1 day
-            console.log(fromDate, toDate, new Date(fromDate), new Date(toDate));
             let geoHashUtiles = new GeoHashUtils_1.GeoHashUtils(tile);
             let gHashes = geoHashUtiles.getGeoHashes();
-            console.log(gHashes);
             let DR = yield getObeliskDataRetrievalOperations(AirQualityServerConfig_1.AirQualityServerConfig.scopeId);
             let qRes = new Array();
             for (let i = 0; i < metrics.length; i++) {
                 qRes[i] = DR.GetEvents(metrics[i], gHashes, fromDate, toDate);
-                //qRes[i] = DR.GetEventsLatest(metrics[i], gHashes);
             }
             let QR = yield Promise.all(qRes).then(data => { return processEvents(data, geoHashUtiles, metrics); }); //.then(data => res.send(data));      
             let builder = new JSONLDDataBuilder_1.JSONLDDataBuilder(QR);

@@ -10,25 +10,41 @@ export class JSONLDDataBuilder {
         this.QR = QR;
     }
     private buildFeatureOfInterest(): string {
-        return '{ "@id":"' + JSONLDConfig.baseURL + JSONLDConfig.FeatureOfInterest + '","@type":"sosa:FeatureOfInterest","rdfs:label":"' + JSONLDConfig.FeatureOfInterest+'"}';
+        let foi : string = '{'
+        foi += '"@id": "' + JSONLDConfig.baseURL + JSONLDConfig.FeatureOfInterest + '"';
+        foi += ',"@type":"sosa:FeatureOfInterest"';
+        foi += ',"rdfs:label":"' + JSONLDConfig.FeatureOfInterest + '"';
+        foi += '}';
+        return foi;
     }
     private buildObservableProperty(metricId: string): string {
-        return '{"@id":"' + JSONLDConfig.baseURL + metricId + '","@type":"sosa:ObervableProperty","rdfs:label":"metricId.' + metricId + '"}';
-    }
-    private buildObservableProperties(): string { //add check if no data 
-        let op: string = "";
-        op = this.buildObservableProperty(this.QR.metricResults[0].metricId);
-        for (let i = 1; i < this.QR.metricResults.length; i++) {
-            op += "," + this.buildObservableProperty(this.QR.metricResults[i].metricId);
-        }       
+        let op: string = '{';
+        op += '"@id":"' + JSONLDConfig.baseURL + metricId + '"';
+        op += ',"@type":"sosa:ObervableProperty"';
+        op += ',"rdfs:label":"metricId.' + metricId + '"';
+        op += '}';
         return op;
     }
-    private buildSensor(sensorId: string,metricIds: Set<string>): string {
-        let sensor = '{"@id":"' + JSONLDConfig.baseURL + sensorId
-            + '","@type":"sosa:Sensor","rdfs:label":"sourceId.' + sensorId + '"';
-        for (let metricId of metricIds) {
-            sensor+= ',"sosa:observes":"' + JSONLDConfig.baseURL + metricId + '"'
+    private buildObservableProperties(): string { 
+        let op: string = "";
+
+        for (let mr of this.QR.metricResults) {
+            op += "," + this.buildObservableProperty(mr.metricId);
         }
+        return op.substr(1);
+    }
+    private buildSensor(sensorId: string,metricIds: Set<string>): string {
+        let sensor: string = '{';
+        sensor += '"@id":"' + JSONLDConfig.baseURL + sensorId + '"';
+        sensor += ',"@type":"sosa:Sensor"';
+        sensor += ',"rdfs:label":"sourceId.' + sensorId + '"';
+        sensor += ',"sosa:observes":[';
+        let metrics = "";
+        for (let metricId of metricIds) {
+            metrics += ',"'+JSONLDConfig.baseURL + metricId + '"';
+        }
+        sensor += metrics.substr(1);
+        sensor += ']';
         sensor+='}';
         return sensor;
     }
@@ -45,15 +61,13 @@ export class JSONLDDataBuilder {
                 }
             }
         }
-        console.log(sensorsMap);
-        let sensors:string[] = Array.from(sensorsMap.keys());
-        console.log(sensors);
+        //console.log(sensorsMap);
         let s: string = "";
-        s = this.buildSensor(sensors[0], sensorsMap.get(sensors[0]));
-        for (let i = 1; i < sensors.length; i++) {
-            s += "," + this.buildSensor(sensors[i], sensorsMap.get(sensors[i]));
+
+        for (let sensor of sensorsMap.keys()) {
+            s += "," + this.buildSensor(sensor, sensorsMap.get(sensor));
         }
-        return s;        
+        return s.substr(1);        
     }
     private buildObservation(time: (number|string), value:(number|string), sensorId:string, geoHash:string, metricId:string): string {
         let date = new Date(time);
@@ -78,7 +92,7 @@ export class JSONLDDataBuilder {
         let colNrSensorId: number = this.QR.columns.indexOf(AirQualityServerConfig.sourceIdColumnName);
         let colNrGeoHash: number = this.QR.columns.indexOf(AirQualityServerConfig.geoHashColumnName);
 
-        let i = 0;
+        let i = 0; //temporary for testing
 
         for (let mr of this.QR.metricResults) {
             for (let v of mr.values) {
@@ -87,7 +101,6 @@ export class JSONLDDataBuilder {
                 if (i > 2) break;
             }
         }
-
         return observations.substr(1);
     }
     public buildData(): void {

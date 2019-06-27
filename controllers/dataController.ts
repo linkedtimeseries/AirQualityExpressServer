@@ -84,16 +84,12 @@ exports.data_get_z_x_y_page = async function (req, res): Promise<void> {
         let date: number = (new Date(req.query.page)).setUTCHours(0,0,0,0);
         let fromDate: number = date;
         let toDate: number = date + 86400000; //window is 1 day
-        
-        console.log(fromDate,toDate,new Date(fromDate),new Date(toDate));
         let geoHashUtiles = new GeoHashUtils(tile);
         let gHashes: string[] = geoHashUtiles.getGeoHashes();
-        console.log(gHashes);
         let DR: ObeliskDataRetrievalOperations = await getObeliskDataRetrievalOperations(AirQualityServerConfig.scopeId);
         let qRes: Promise<IObeliskSpatialQueryCodeAndResults>[] = new Array();
         for (let i = 0; i < metrics.length; i++) {
             qRes[i] = DR.GetEvents(metrics[i], gHashes, fromDate, toDate);
-            //qRes[i] = DR.GetEventsLatest(metrics[i], gHashes);
         }
         let QR:IQueryResults= await Promise.all(qRes).then(data => { return processEvents(data, geoHashUtiles, metrics); })//.then(data => res.send(data));      
 
