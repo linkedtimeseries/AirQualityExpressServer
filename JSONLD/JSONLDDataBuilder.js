@@ -73,7 +73,7 @@ class JSONLDDataBuilder {
         observation += ',"@type":"sosa:Observation"';
         observation += ',"sosa:hasSimpleResult":' + value;
         observation += ',"sosa:resultTime":"' + date.toISOString() + '"';
-        observation += ',"sosa:observedPoperty":"' + JSONLDconfig_1.JSONLDConfig.baseURL + metricId + '"';
+        observation += ',"sosa:observedProperty":"' + JSONLDconfig_1.JSONLDConfig.baseURL + metricId + '"';
         observation += ',"sosa:madeBySensor":"' + JSONLDconfig_1.JSONLDConfig.baseURL + sensorId + '"';
         observation += ',"sosa:hasFeatureOfInterest":"' + JSONLDconfig_1.JSONLDConfig.baseURL + JSONLDconfig_1.JSONLDConfig.FeatureOfInterest + '"';
         observation += ',"geo:lat":' + latlon.latitude;

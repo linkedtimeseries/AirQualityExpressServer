@@ -77,7 +77,7 @@ export class JSONLDDataBuilder {
         observation += ',"@type":"sosa:Observation"';
         observation += ',"sosa:hasSimpleResult":' + value;
         observation += ',"sosa:resultTime":"' + date.toISOString() + '"';
-        observation += ',"sosa:observedPoperty":"' + JSONLDConfig.baseURL + metricId + '"';
+        observation += ',"sosa:observedProperty":"' + JSONLDConfig.baseURL + metricId + '"';
         observation += ',"sosa:madeBySensor":"' + JSONLDConfig.baseURL + sensorId + '"';
         observation += ',"sosa:hasFeatureOfInterest":"' + JSONLDConfig.baseURL + JSONLDConfig.FeatureOfInterest + '"';
         observation += ',"geo:lat":' + latlon.latitude;
