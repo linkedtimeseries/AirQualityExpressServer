@@ -15,10 +15,11 @@ const OQMetadata_1 = require("../ObeliskQuery/OQMetadata");
 const QueryResults_1 = require("../API/QueryResults");
 const AirQualityServerConfig_1 = require("../AirQualityServerConfig");
 const JSONLDDataBuilder_1 = require("../JSONLD/JSONLDDataBuilder");
+let airQualityServerConfig = new AirQualityServerConfig_1.AirQualityServerConfig();
 let auth = null;
 function startAuth() {
     return __awaiter(this, void 0, void 0, function* () {
-        auth = new Authentication_1.ObeliskClientAuthentication(AirQualityServerConfig_1.AirQualityServerConfig.ObeliskClientId, AirQualityServerConfig_1.AirQualityServerConfig.ObeliskClientSecret, false);
+        auth = new Authentication_1.ObeliskClientAuthentication(airQualityServerConfig.ObeliskClientId, airQualityServerConfig.ObeliskClientSecret, false);
         yield auth.initTokens();
     });
 }

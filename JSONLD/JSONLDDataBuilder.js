@@ -45,8 +45,6 @@ class JSONLDDataBuilder {
         console.log(sensorsMap);
         let sensors = Array.from(sensorsMap.keys());
         console.log(sensors);
-        console.log(sensors[0]);
-        console.log(sensorsMap.get(sensors[0]));
         let s = "";
         s = this.buildSensor(sensors[0], sensorsMap.get(sensors[0]));
         for (let i = 1; i < sensors.length; i++) {

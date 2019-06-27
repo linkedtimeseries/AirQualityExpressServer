@@ -15,8 +15,9 @@ router.get('/', async function (req, res) {
     //let testQuery: string = "DR";
     let testQuery: string = "Meta";
     //let testQuery: string = "Spatial";
+    let airQualityServerConfig = new AirQualityServerConfig();
 
-    let auth = new ObeliskClientAuthentication(AirQualityServerConfig.ObeliskClientId, AirQualityServerConfig.ObeliskClientSecret, false);
+    let auth = new ObeliskClientAuthentication(airQualityServerConfig.ObeliskClientId, airQualityServerConfig.ObeliskClientSecret, false);
     await auth.initTokens();
     //res.send(auth.showTokens());
 

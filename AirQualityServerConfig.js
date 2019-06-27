@@ -1,10 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const fs = require('fs');
 class AirQualityServerConfig {
+    constructor() {
+        let rawdata = fs.readFileSync('obeliskLogin.json', 'utf8');
+        let config = JSON.parse(rawdata.trim());
+        this.ObeliskClientId = config.ObeliskClientId;
+        this.ObeliskClientSecret = config.ObeliskClientSecret;
+    }
 }
 AirQualityServerConfig.scopeId = 'cot.airquality';
-AirQualityServerConfig.ObeliskClientId = 'smart-flanders-linked-air-quality';
-AirQualityServerConfig.ObeliskClientSecret = '87bf0a72-bbdf-4aa6-962f-12ae1bf82d80';
 AirQualityServerConfig.geoHashColumnName = 'geohash';
 AirQualityServerConfig.sourceIdColumnName = 'sourceId';
 AirQualityServerConfig.ObeliskAddress = 'https://obelisk.ilabt.imec.be';
