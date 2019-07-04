@@ -103,7 +103,6 @@ exports.data_get_z_x_y_page = function (req, res) {
             try {
                 geoHashUtiles = new GeoHashUtils_1.GeoHashUtils(tile);
                 gHashes = geoHashUtiles.getGeoHashes();
-                //throw new Error('geohash processing error');
             }
             catch (e) {
                 res.status(400).send("geoHash error : " + e);
@@ -119,7 +118,6 @@ exports.data_get_z_x_y_page = function (req, res) {
                     metrics = yield getMetricIds(AirQualityServerConfig_1.AirQualityServerConfig.scopeId);
                     console.log(metrics);
                 }
-                //throw new Error('metrics processing error');
             }
             catch (e) {
                 res.status(400).send("metrics error : " + e);
@@ -145,7 +143,7 @@ exports.data_get_z_x_y_page = function (req, res) {
                 for (let i = 0; i < metrics.length; i++) {
                     qRes[i] = DR.GetEvents(metrics[i], gHashes, fromDate, toDate);
                 }
-                QR = yield Promise.all(qRes).then(data => { return processEvents(data, geoHashUtiles, metrics); }); //.then(data => res.send(data));      
+                QR = yield Promise.all(qRes).then(data => { return processEvents(data, geoHashUtiles, metrics); });
                 if (QR.isEmpty()) {
                     res.status(400).send("query error : no results");
                     return;
@@ -160,14 +158,12 @@ exports.data_get_z_x_y_page = function (req, res) {
                 let builder = new JSONLDBuilder_1.JSONLDBuilder(tile, req.query.page, QR);
                 builder.buildData();
                 let json = builder.getJSONLD();
-                //console.log(json);
                 res.send(json);
             }
             catch (e) {
                 res.status(400).send("jsonld convert error : " + e);
                 return;
             }
-            //res.send(QR);
         }
         catch (error) {
             console.log(error);

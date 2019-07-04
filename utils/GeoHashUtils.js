@@ -16,7 +16,6 @@ class GeoHashUtils {
         let down = false;
         while (!stop) {
             var ha = geohash.bboxes(this.bbox.minLat, this.bbox.minLon, this.bbox.maxLat, this.bbox.maxLon, precision);
-            //console.log('p:', precision, ha.length);
             stop = true;
             if ((ha.length == 1) && down) {
                 stop = true;

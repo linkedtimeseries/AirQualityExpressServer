@@ -13,10 +13,7 @@ export class ObeliskClientAuthentication {
     private authTokens: Tokens; 
     private RPTTokens: Tokens;
     private expires_in: number;
-    //static readonly url_post_authenticate: string = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
-    //static readonly url_post_access: string = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
-    //static readonly url_post_refreshRPT: string = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
-
+ 
     constructor(private client_id: string, private client_secret: string, private log: Boolean = true) {
     }
 
@@ -35,12 +32,6 @@ export class ObeliskClientAuthentication {
         //silent refresh
         console.log('set interval:' + this.expires_in);
         interval(async () => this.refreshRPT(), this.expires_in*900); //convert to miliseconds + take margin (10%)
-
-        //await new Promise(resolve => setTimeout(resolve, 3000));
-        //await this.refreshRPT();
-        //console.log('init - R-RPT');
-        //console.log("R-RPT:" + this.RPTTokens.access_token);
-        //console.log("R-RPT:" + this.RPTTokens.refresh_token);
     }
     private async authenticateToObelisk() {
         let authString = (new Buffer(this.client_id + ':' + this.client_secret)).toString('base64');
@@ -96,7 +87,6 @@ export class ObeliskClientAuthentication {
             client_secret: this.client_secret
         }
         let expiresDate = Date.now();
-        //console.log('refresh:' + expiresDate + ',' + new Date(expiresDate));
         await fetch(AirQualityServerConfig.Obelisk_url_post_refreshRPT, {
             method: 'POST',
             headers: headersPost,
@@ -110,7 +100,6 @@ export class ObeliskClientAuthentication {
                 this.expires_in = json.expires_in; //unit = seconds                
             })
             .catch(err => console.error(err));
-        //console.log(this.RPTTokens.access_token);
     }
     public showTokens(): Tokens {
         return this.RPTTokens;

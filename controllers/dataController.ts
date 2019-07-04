@@ -87,7 +87,6 @@ exports.data_get_z_x_y_page = async function (req, res): Promise<void> {
         try {
             geoHashUtiles = new GeoHashUtils(tile);
             gHashes = geoHashUtiles.getGeoHashes();
-            //throw new Error('geohash processing error');
         }
         catch (e) {
             res.status(400).send("geoHash error : " + e);
@@ -102,8 +101,7 @@ exports.data_get_z_x_y_page = async function (req, res): Promise<void> {
             else { //option : if no metricids are given, take all from metaquery
                 metrics = await getMetricIds(AirQualityServerConfig.scopeId);
                 console.log(metrics);
-            }
-            //throw new Error('metrics processing error');
+            }            
         }
         catch (e) {
             res.status(400).send("metrics error : " + e);
@@ -129,7 +127,7 @@ exports.data_get_z_x_y_page = async function (req, res): Promise<void> {
             for (let i = 0; i < metrics.length; i++) {
                 qRes[i] = DR.GetEvents(metrics[i], gHashes, fromDate, toDate);
             }
-            QR = await Promise.all(qRes).then(data => { return processEvents(data, geoHashUtiles, metrics); })//.then(data => res.send(data));      
+            QR = await Promise.all(qRes).then(data => { return processEvents(data, geoHashUtiles, metrics); });    
             if (QR.isEmpty()) {
                 res.status(400).send("query error : no results");
                 return;
@@ -144,14 +142,12 @@ exports.data_get_z_x_y_page = async function (req, res): Promise<void> {
             let builder: JSONLDBuilder = new JSONLDBuilder(tile, req.query.page, QR);
             builder.buildData();
             let json: string = builder.getJSONLD();
-            //console.log(json);
             res.send(json);
         }
         catch (e) {
             res.status(400).send("jsonld convert error : " + e);
             return;
         }
-        //res.send(QR);
     }
     catch (error) {
         console.log(error);

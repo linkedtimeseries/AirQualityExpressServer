@@ -1,4 +1,5 @@
-﻿import { IQueryResults, IMetricResults } from "./APIInterfaces";
+﻿//implementation of the APIInterfaces (query results from Obelisk)
+import { IQueryResults, IMetricResults } from "./APIInterfaces";
 
 export class MetricResults implements IMetricResults {
     public metricId: string;

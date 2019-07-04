@@ -25,11 +25,13 @@ export class ObeliskDataRetrievalOperations {
         await fetch(url, { headers: this.auth.resourceCallAuthorizationHeader() })
             .then(res => {
                 resultsStatus = res.status;
-                //console.log(res.ok);
-                console.log(res.status);
-                console.log(res.statusText);
-                //console.log(res.headers.raw());
-                //console.log(res.headers.get('content-type'));
+                if (this.log) {
+                    //console.log(res.ok);
+                    console.log(res.status);
+                    console.log(res.statusText);
+                    //console.log(res.headers.raw());
+                    //console.log(res.headers.get('content-type'));
+                }
                 if (!res.ok) { throw new Error(res.status + "," + res.statusText);}
                 return res;
             })
@@ -45,73 +47,5 @@ export class ObeliskDataRetrievalOperations {
                 }
             );           
         return { responseCode: resultsStatus, results: results }       
-    }
-    public async GetEventsLatest(metricId: string, geoHash: string[]): Promise<IObeliskSpatialQueryCodeAndResults> {
-        let resultsStatus: number;
-        let results: any;
-        let url = ObeliskDataRetrievalOperations.address
-            + '/api/v1/scopes/' + this.scopeId
-            + '/query/' + metricId + '/events/latest'
-            + '?'
-            //+ querystring.stringify({ from: fromTime_ms.toString(), to: toTime_ms.toString() })
-            + 'area=' + geoHash.join(",")
-            + '&spatialIndex=geohash';       
-        await fetch(url, { headers: this.auth.resourceCallAuthorizationHeader() })
-            //.then(res => {
-            //    console.log(res.ok);
-            //    console.log(res.status);
-            //    console.log(res.statusText);
-            //    console.log(res.headers.raw());
-            //    console.log(res.headers.get('content-type'));
-            //    return res;
-            //});
-            .then(res => {
-                resultsStatus = res.status;
-                return res;
-            })
-            .then(res => res.json())
-            .then(jsonData => results = jsonData)
-            .catch(
-                err => {
-                    results = err;
-                    if (this.log) {
-                        console.error(err);
-                    }
-                }
-            );           
-        return { responseCode: resultsStatus, results: results }
-    }
-
-    //bad request if area is filled in -- to check ??
-    //public async GetStats(metricId: string, geoHash: string[]) /*: Promise<ObeliskSpatialQueryCodeAndResults>*/ {
-    //    let resultsStatus: number;
-    //    let results: any;
-    //    let url = ObeliskDataRetrievalOperations.address
-    //        + '/api/v1/scopes/' + this.scopeId
-    //        + '/query/' + metricId + '/stats'
-    //        + '?'
-    //        //+ querystring.stringify({ from: fromTime_ms.toString(), to: toTime_ms.toString() })
-    //        + 'area=' + geoHash.join(",")
-    //        + '&spatialIndex=geohash';
-    //    await fetch(url, { headers: this.auth.resourceCallAuthorizationHeader() })
-    //        .then(res => {
-    //            console.log(res.ok);
-    //            console.log(res.status);
-    //            console.log(res.statusText);
-    //            console.log(res.headers.raw());
-    //            console.log(res.headers.get('content-type'));
-    //            return res;
-    //        });
-    //        //.then(res => Promise.all([res.status, res.json()]))
-    //        //.then(([status, jsonData]) => {
-    //        //    if (this.log) {
-    //        //        console.log(jsonData);
-    //        //        console.log(status);
-    //        //    }
-    //        //    resultsStatus = status;
-    //        //    results = jsonData;
-    //        //})
-    //        //.catch(err => console.error(err));
-    //    return { responseCode: resultsStatus, results: results }
-    //}
+    }   
 }

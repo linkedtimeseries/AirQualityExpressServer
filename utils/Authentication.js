@@ -13,9 +13,6 @@ const fetch = require('node-fetch');
 const querystring = require('querystring');
 const interval = require('interval-promise');
 class ObeliskClientAuthentication {
-    //static readonly url_post_authenticate: string = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
-    //static readonly url_post_access: string = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
-    //static readonly url_post_refreshRPT: string = 'https://obelisk.ilabt.imec.be/auth/realms/idlab-iot/protocol/openid-connect/token';
     constructor(client_id, client_secret, log = true) {
         this.client_id = client_id;
         this.client_secret = client_secret;
@@ -37,11 +34,6 @@ class ObeliskClientAuthentication {
             //silent refresh
             console.log('set interval:' + this.expires_in);
             interval(() => __awaiter(this, void 0, void 0, function* () { return this.refreshRPT(); }), this.expires_in * 900); //convert to miliseconds + take margin (10%)
-            //await new Promise(resolve => setTimeout(resolve, 3000));
-            //await this.refreshRPT();
-            //console.log('init - R-RPT');
-            //console.log("R-RPT:" + this.RPTTokens.access_token);
-            //console.log("R-RPT:" + this.RPTTokens.refresh_token);
         });
     }
     authenticateToObelisk() {
@@ -104,7 +96,6 @@ class ObeliskClientAuthentication {
                 client_secret: this.client_secret
             };
             let expiresDate = Date.now();
-            //console.log('refresh:' + expiresDate + ',' + new Date(expiresDate));
             yield fetch(AirQualityServerConfig_1.AirQualityServerConfig.Obelisk_url_post_refreshRPT, {
                 method: 'POST',
                 headers: headersPost,
@@ -119,7 +110,6 @@ class ObeliskClientAuthentication {
                 this.expires_in = json.expires_in; //unit = seconds                
             })
                 .catch(err => console.error(err));
-            //console.log(this.RPTTokens.access_token);
         });
     }
     showTokens() {

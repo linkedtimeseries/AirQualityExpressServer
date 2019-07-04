@@ -61,7 +61,6 @@ export class JSONLDDataBuilder {
                 }
             }
         }
-        //console.log(sensorsMap);
         let s: string = "";
 
         for (let sensor of sensorsMap.keys()) {

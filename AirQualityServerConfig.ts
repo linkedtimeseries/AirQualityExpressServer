@@ -4,7 +4,7 @@ export class AirQualityServerConfig {
     static readonly scopeId: string = 'cot.airquality';
     readonly ObeliskClientId: string ;
     readonly ObeliskClientSecret: string;
-    static readonly dateTimeFrame: number = 86400000;//window is 1 day
+    static readonly dateTimeFrame: number = 86400000;//window is 1 day in msec
     static readonly geoHashColumnName: string = 'geohash';
     static readonly sourceIdColumnName: string = 'sourceId';
     static readonly timeColumnName: string = 'time';
