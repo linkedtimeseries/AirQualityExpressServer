@@ -7,6 +7,7 @@ import { IQueryResults, IMetricResults } from "../API/APIInterfaces";
 import { QueryResults, MetricResults } from "../API/QueryResults";
 import { AirQualityServerConfig } from "../AirQualityServerConfig";
 import { JSONLDDataBuilder } from "../JSONLD/JSONLDDataBuilder";
+import { JSONLDBuilder } from "../JSONLD/JSONLDBuilder";
 
 let airQualityServerConfig = new AirQualityServerConfig();
 
@@ -93,7 +94,8 @@ exports.data_get_z_x_y_page = async function (req, res): Promise<void> {
         }
         let QR:IQueryResults= await Promise.all(qRes).then(data => { return processEvents(data, geoHashUtiles, metrics); })//.then(data => res.send(data));      
         
-        let builder: JSONLDDataBuilder = new JSONLDDataBuilder(QR);
+        //let builder: JSONLDDataBuilder = new JSONLDDataBuilder(QR);
+        let builder: JSONLDBuilder = new JSONLDBuilder(tile,req.query.page,QR);
         builder.buildData();
         let json: string = builder.getJSONLD();
         console.log(json);

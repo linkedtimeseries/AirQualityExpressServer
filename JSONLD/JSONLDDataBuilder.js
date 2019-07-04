@@ -5,6 +5,7 @@ const AirQualityServerConfig_1 = require("../AirQualityServerConfig");
 var geohash = require('ngeohash');
 class JSONLDDataBuilder {
     constructor(QR) {
+        this.json = "";
         this.QR = QR;
     }
     buildFeatureOfInterest() {
@@ -99,12 +100,13 @@ class JSONLDDataBuilder {
         return observations.substr(1);
     }
     buildData() {
-        this.json = "{" + JSONLDconfig_1.JSONLDConfig.context;
-        this.json += ',"@graph":[' + this.buildFeatureOfInterest();
+        //this.json = "{" 
+        this.json += '"@graph":[' + this.buildFeatureOfInterest();
         this.json += ',' + this.buildObservableProperties();
         this.json += ',' + this.buildSensors();
         this.json += ',' + this.buildObservations();
-        this.json += "]}";
+        this.json += "]";
+        //this.json+="}";       
     }
     getJSONLD() {
         return this.json;

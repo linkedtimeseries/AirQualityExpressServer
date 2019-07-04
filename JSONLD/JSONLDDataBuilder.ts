@@ -5,7 +5,7 @@ var geohash = require('ngeohash');
 
 export class JSONLDDataBuilder {
     private QR: IQueryResults;
-    private json: string;
+    private json: string="";
     constructor(QR: IQueryResults) {
         this.QR = QR;
     }
@@ -104,12 +104,11 @@ export class JSONLDDataBuilder {
         return observations.substr(1);
     }
     public buildData(): void {
-        this.json = "{" + JSONLDConfig.context;
-        this.json += ',"@graph":[' + this.buildFeatureOfInterest();
+        this.json += '"@graph":[' + this.buildFeatureOfInterest();
         this.json += ',' + this.buildObservableProperties();
         this.json += ',' + this.buildSensors();
         this.json += ',' + this.buildObservations();
-        this.json += "]}";       
+        this.json += "]";    
     }
     public getJSONLD(): string {
         return this.json;

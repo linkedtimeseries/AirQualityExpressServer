@@ -14,7 +14,7 @@ const GeoHashUtils_1 = require("../utils/GeoHashUtils");
 const OQMetadata_1 = require("../ObeliskQuery/OQMetadata");
 const QueryResults_1 = require("../API/QueryResults");
 const AirQualityServerConfig_1 = require("../AirQualityServerConfig");
-const JSONLDDataBuilder_1 = require("../JSONLD/JSONLDDataBuilder");
+const JSONLDBuilder_1 = require("../JSONLD/JSONLDBuilder");
 let airQualityServerConfig = new AirQualityServerConfig_1.AirQualityServerConfig();
 let auth = null;
 function startAuth() {
@@ -108,7 +108,8 @@ exports.data_get_z_x_y_page = function (req, res) {
                 qRes[i] = DR.GetEvents(metrics[i], gHashes, fromDate, toDate);
             }
             let QR = yield Promise.all(qRes).then(data => { return processEvents(data, geoHashUtiles, metrics); }); //.then(data => res.send(data));      
-            let builder = new JSONLDDataBuilder_1.JSONLDDataBuilder(QR);
+            //let builder: JSONLDDataBuilder = new JSONLDDataBuilder(QR);
+            let builder = new JSONLDBuilder_1.JSONLDBuilder(tile, req.query.page, QR);
             builder.buildData();
             let json = builder.getJSONLD();
             console.log(json);
