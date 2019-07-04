@@ -10,6 +10,7 @@ class AirQualityServerConfig {
     }
 }
 AirQualityServerConfig.scopeId = 'cot.airquality';
+AirQualityServerConfig.dateTimeFrame = 86400000; //window is 1 day
 AirQualityServerConfig.geoHashColumnName = 'geohash';
 AirQualityServerConfig.sourceIdColumnName = 'sourceId';
 AirQualityServerConfig.timeColumnName = 'time';

@@ -23,16 +23,14 @@ export class ObeliskDataRetrievalOperations {
         if (limit)
             url += '&limit=' + limit.toString();
         await fetch(url, { headers: this.auth.resourceCallAuthorizationHeader() })
-            //.then(res => {
-            //    console.log(res.ok);
-            //    console.log(res.status);
-            //    console.log(res.statusText);
-            //    console.log(res.headers.raw());
-            //    console.log(res.headers.get('content-type'));
-            //    return res;
-            //})
             .then(res => {
                 resultsStatus = res.status;
+                //console.log(res.ok);
+                console.log(res.status);
+                console.log(res.statusText);
+                //console.log(res.headers.raw());
+                //console.log(res.headers.get('content-type'));
+                if (!res.ok) { throw new Error(res.status + "," + res.statusText);}
                 return res;
             })
             .then(res => res.json())
@@ -43,6 +41,7 @@ export class ObeliskDataRetrievalOperations {
                     if (this.log) {
                         console.error(err);
                     }
+                    throw err;
                 }
             );           
         return { responseCode: resultsStatus, results: results }       

@@ -100,13 +100,11 @@ class JSONLDDataBuilder {
         return observations.substr(1);
     }
     buildData() {
-        //this.json = "{" 
         this.json += '"@graph":[' + this.buildFeatureOfInterest();
         this.json += ',' + this.buildObservableProperties();
         this.json += ',' + this.buildSensors();
         this.json += ',' + this.buildObservations();
         this.json += "]";
-        //this.json+="}";       
     }
     getJSONLD() {
         return this.json;

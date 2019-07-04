@@ -14,7 +14,7 @@ JSONLDConfig.context = '"@context":{'
     + ',"ssn":"http://www.w3.org/ns/ssn/"'
     + ',"dcterms":"http://purl.org/dc/terms/"'
     + ',"hydra":"http://wwww.wr.org/ns/hydra/core#"'
-    + ',"ts":"http://xxx"'
+    + ',"ts":"http://xxx/"'
     + '}';
 JSONLDConfig.FeatureOfInterest = "AirQuality";
 JSONLDConfig.baseURL = "http://example.org/data/";

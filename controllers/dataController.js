@@ -62,20 +62,24 @@ function getMetricIds(scopeId) {
 function processEvents(data, geoHashUtils, metrics) {
     let queryResults = new QueryResults_1.QueryResults();
     let id = 0;
+    if (data.length == 0)
+        return null;
     for (let d of data) {
-        if (queryResults.columns.length == 0)
-            queryResults.columns = d.results.columns;
-        let metricResults = new QueryResults_1.MetricResults(metrics[id]);
-        id++;
-        //filter geoHashes - within tile requirement
-        let colNr = d.results.columns.indexOf(AirQualityServerConfig_1.AirQualityServerConfig.geoHashColumnName);
-        for (let r of d.results.values) {
-            let ii = geoHashUtils.isWithinTile(r[colNr].toString());
-            if (ii) {
-                metricResults.AddValues(r);
+        if ((d.responseCode == 200) && (d.results != null)) {
+            if (queryResults.columns.length == 0)
+                queryResults.columns = d.results.columns;
+            let metricResults = new QueryResults_1.MetricResults(metrics[id]);
+            id++;
+            //filter geoHashes - within tile requirement
+            let colNr = d.results.columns.indexOf(AirQualityServerConfig_1.AirQualityServerConfig.geoHashColumnName);
+            for (let r of d.results.values) {
+                let ii = geoHashUtils.isWithinTile(r[colNr].toString());
+                if (ii) {
+                    metricResults.AddValues(r);
+                }
             }
+            queryResults.AddMetricResults(metricResults);
         }
-        queryResults.AddMetricResults(metricResults);
     }
     return queryResults;
 }
@@ -83,42 +87,91 @@ function processEvents(data, geoHashUtils, metrics) {
 exports.data_get_z_x_y_page = function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         let metrics;
+        let geoHashUtiles;
+        let gHashes;
+        let date;
+        let fromDate;
+        let toDate;
+        let QR;
         try {
-            //get metrics from request
-            if (req.query.metrics) {
-                metrics = req.query.metrics.split(',');
-                console.log('metrics:', metrics);
-            }
-            else { //option : if no metricids are given, take all from metaquery
-                metrics = yield getMetricIds(AirQualityServerConfig_1.AirQualityServerConfig.scopeId);
-                console.log(metrics);
-                //console.log("no metrics");            
-                //throw "no metrics";
-            }
             //convert tile to geoHashes
             let tile = { x: Number(req.params.tile_x), y: Number(req.params.tile_y), zoom: Number(req.params.zoom) };
-            let date = (new Date(req.query.page)).setUTCHours(0, 0, 0, 0);
-            let fromDate = date;
-            let toDate = date + 86400000; //window is 1 day
-            let geoHashUtiles = new GeoHashUtils_1.GeoHashUtils(tile);
-            let gHashes = geoHashUtiles.getGeoHashes();
-            let DR = yield getObeliskDataRetrievalOperations(AirQualityServerConfig_1.AirQualityServerConfig.scopeId);
-            let qRes = new Array();
-            for (let i = 0; i < metrics.length; i++) {
-                qRes[i] = DR.GetEvents(metrics[i], gHashes, fromDate, toDate);
+            if (tile.zoom != 14) {
+                res.status(400).send("only zoom level 14 allowed");
+                return;
             }
-            let QR = yield Promise.all(qRes).then(data => { return processEvents(data, geoHashUtiles, metrics); }); //.then(data => res.send(data));      
-            //let builder: JSONLDDataBuilder = new JSONLDDataBuilder(QR);
-            let builder = new JSONLDBuilder_1.JSONLDBuilder(tile, req.query.page, QR);
-            builder.buildData();
-            let json = builder.getJSONLD();
-            console.log(json);
-            res.send(json);
+            try {
+                geoHashUtiles = new GeoHashUtils_1.GeoHashUtils(tile);
+                gHashes = geoHashUtiles.getGeoHashes();
+                //throw new Error('geohash processing error');
+            }
+            catch (e) {
+                res.status(400).send("geoHash error : " + e);
+                return;
+            }
+            //get metrics from request
+            try {
+                if (req.query.metrics) {
+                    metrics = req.query.metrics.split(',');
+                    console.log('metrics:', metrics);
+                }
+                else { //option : if no metricids are given, take all from metaquery
+                    metrics = yield getMetricIds(AirQualityServerConfig_1.AirQualityServerConfig.scopeId);
+                    console.log(metrics);
+                }
+                //throw new Error('metrics processing error');
+            }
+            catch (e) {
+                res.status(400).send("metrics error : " + e);
+                return;
+            }
+            //date
+            try {
+                date = (new Date(req.query.page)).setUTCHours(0, 0, 0, 0);
+                if (isNaN(date)) {
+                    throw new Error("date isNaN");
+                }
+                fromDate = date;
+                toDate = date + AirQualityServerConfig_1.AirQualityServerConfig.dateTimeFrame;
+            }
+            catch (e) {
+                res.status(400).send("date error : " + e);
+                return;
+            }
+            try {
+                //query obelisk
+                let DR = yield getObeliskDataRetrievalOperations(AirQualityServerConfig_1.AirQualityServerConfig.scopeId);
+                let qRes = new Array();
+                for (let i = 0; i < metrics.length; i++) {
+                    qRes[i] = DR.GetEvents(metrics[i], gHashes, fromDate, toDate);
+                }
+                QR = yield Promise.all(qRes).then(data => { return processEvents(data, geoHashUtiles, metrics); }); //.then(data => res.send(data));      
+                if (QR.isEmpty()) {
+                    res.status(400).send("query error : no results");
+                    return;
+                }
+            }
+            catch (e) {
+                res.status(400).send("query error : " + e);
+                return;
+            }
+            try {
+                //convert to jsonld
+                let builder = new JSONLDBuilder_1.JSONLDBuilder(tile, req.query.page, QR);
+                builder.buildData();
+                let json = builder.getJSONLD();
+                //console.log(json);
+                res.send(json);
+            }
+            catch (e) {
+                res.status(400).send("jsonld convert error : " + e);
+                return;
+            }
             //res.send(QR);
         }
         catch (error) {
             console.log(error);
-            res.send(error);
+            res.status(400).send(error);
         }
     });
 };

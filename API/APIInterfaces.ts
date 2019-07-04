@@ -6,5 +6,6 @@
 export interface IQueryResults {
     columns: string[],
     metricResults: IMetricResults[]
-    AddMetricResults(metricResults: IMetricResults) : void
+    AddMetricResults(metricResults: IMetricResults): void
+    isEmpty(): boolean
 }

@@ -59,10 +59,8 @@ class JSONLDDocumentBuilder {
         return di;
     }
     buildDocument() {
-        //this.json = "{";
         this.json += this.buildTilesInfo();
         this.json += ',' + this.buildDctermsInfo();
-        //this.json += "}";
     }
     getJSONLD() {
         return this.json;

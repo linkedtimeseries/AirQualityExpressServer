@@ -20,6 +20,7 @@ class ObeliskDataRetrievalOperations {
     GetEvents(metricId, geoHash, fromTime_ms, toTime_ms, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             let resultsStatus;
+            //let resultsStatusText: string;
             let results;
             let url = ObeliskDataRetrievalOperations.address
                 + '/api/v1/scopes/' + this.scopeId
@@ -32,16 +33,17 @@ class ObeliskDataRetrievalOperations {
             if (limit)
                 url += '&limit=' + limit.toString();
             yield fetch(url, { headers: this.auth.resourceCallAuthorizationHeader() })
-                //.then(res => {
-                //    console.log(res.ok);
-                //    console.log(res.status);
-                //    console.log(res.statusText);
-                //    console.log(res.headers.raw());
-                //    console.log(res.headers.get('content-type'));
-                //    return res;
-                //})
                 .then(res => {
                 resultsStatus = res.status;
+                //resultsStatusText = res.statusText;
+                //console.log(res.ok);
+                console.log(res.status);
+                console.log(res.statusText);
+                //console.log(res.headers.raw());
+                //console.log(res.headers.get('content-type'));
+                if (!res.ok) {
+                    throw new Error(res.status + "," + res.statusText);
+                }
                 return res;
             })
                 .then(res => res.json())
@@ -51,6 +53,7 @@ class ObeliskDataRetrievalOperations {
                 if (this.log) {
                     console.error(err);
                 }
+                throw err;
             });
             return { responseCode: resultsStatus, results: results };
         });

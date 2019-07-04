@@ -24,4 +24,9 @@ export class QueryResults implements IQueryResults {
     public AddMetricResults(metricResults: IMetricResults) : void {
         this.metricResults.push(metricResults);
     }
+    public isEmpty(): boolean {
+        if (this.columns.length == 0) return true;
+        if (this.metricResults.length == 0) return true;
+        return false;
+    }
 }

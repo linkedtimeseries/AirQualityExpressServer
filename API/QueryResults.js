@@ -18,6 +18,13 @@ class QueryResults {
     AddMetricResults(metricResults) {
         this.metricResults.push(metricResults);
     }
+    isEmpty() {
+        if (this.columns.length == 0)
+            return true;
+        if (this.metricResults.length == 0)
+            return true;
+        return false;
+    }
 }
 exports.QueryResults = QueryResults;
 //# sourceMappingURL=QueryResults.js.map
