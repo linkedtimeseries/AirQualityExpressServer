@@ -1,4 +1,7 @@
 "use strict";
+//Build the document information for the request in JSONLD format.
+//  step 1 - add the Tiles Info
+//  step 2 - add the DctermsInfo
 Object.defineProperty(exports, "__esModule", { value: true });
 const JSONLDconfig_1 = require("./JSONLDconfig");
 class JSONLDDocumentBuilder {

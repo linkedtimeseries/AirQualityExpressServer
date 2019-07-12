@@ -1,4 +1,8 @@
-﻿import { JSONLDConfig } from "./JSONLDconfig";
+﻿//Build the document information for the request in JSONLD format.
+//  step 1 - add the Tiles Info
+//  step 2 - add the DctermsInfo
+
+import { JSONLDConfig } from "./JSONLDconfig";
 import { Tile } from "../utils/GeoHashUtils";
 
 export class JSONLDDocumentBuilder {

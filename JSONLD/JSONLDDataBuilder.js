@@ -1,4 +1,10 @@
 "use strict";
+//Converts the query results to JSONLD format according to the sosa standard (https://www.w3.org/TR/2017/REC-vocab-ssn-20171019/)
+//  step 1 - add FeatureOfInterest
+//  step 2 - add ObservableProperties
+//  step 3 - add Sensors
+//  step 4 - add Observations
+//Embed results in @graph member
 Object.defineProperty(exports, "__esModule", { value: true });
 const JSONLDconfig_1 = require("./JSONLDconfig");
 const AirQualityServerConfig_1 = require("../AirQualityServerConfig");
@@ -87,12 +93,13 @@ class JSONLDDataBuilder {
         let colNrValue = this.QR.columns.indexOf(AirQualityServerConfig_1.AirQualityServerConfig.valueColumnName);
         let colNrSensorId = this.QR.columns.indexOf(AirQualityServerConfig_1.AirQualityServerConfig.sourceIdColumnName);
         let colNrGeoHash = this.QR.columns.indexOf(AirQualityServerConfig_1.AirQualityServerConfig.geoHashColumnName);
-        //let i = 0; //temporary for testing
+        let i = 0; //temporary for testing
         for (let mr of this.QR.metricResults) {
             for (let v of mr.values) {
                 observations += ',' + this.buildObservation(v[colNrTime], v[colNrValue], v[colNrSensorId].toString(), v[colNrGeoHash].toString(), mr.metricId);
-                //i++;
-                //if (i > 2) break;
+                i++;
+                if (i > 2)
+                    break;
             }
         }
         return observations.substr(1);

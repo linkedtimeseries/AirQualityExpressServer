@@ -1,4 +1,11 @@
 "use strict";
+//implementation of the Obelisk authentication as described by https://obelisk.ilabt.imec.be/api/v1/docs/security/auth-details/
+//url references can be found in class AirQualityServerConfig
+//client_id and client_secret are read from file obeliskLogin.json, 
+//format {
+//    "ObeliskClientId": "xxx",
+//    "ObeliskClientSecret": "yyy"
+//}
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }

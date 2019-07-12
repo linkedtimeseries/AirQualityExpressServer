@@ -1,4 +1,5 @@
 "use strict";
+//abstract class that contains configuration information for building the JSONLD output.
 Object.defineProperty(exports, "__esModule", { value: true });
 class JSONLDConfig {
 }

@@ -1,5 +1,6 @@
-﻿import express = require('express');
-import { ObeliskClientAuthentication } from '../utils/Authentication';
+﻿//Maps the route '/:zoom/:tile_x/:tile_y' to the appropriate function in the dataController
+import express = require('express');
+
 const router = express.Router();
 
 var dataController = require('../controllers/dataController')

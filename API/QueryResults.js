@@ -5,7 +5,7 @@ class MetricResults {
         this.metricId = metricId;
         this.values = new Array();
     }
-    AddValues(values) {
+    addValues(values) {
         this.values.push(values);
     }
 }
@@ -15,7 +15,7 @@ class QueryResults {
         this.columns = new Array();
         this.metricResults = new Array();
     }
-    AddMetricResults(metricResults) {
+    addMetricResults(metricResults) {
         this.metricResults.push(metricResults);
     }
     isEmpty() {

@@ -1,4 +1,11 @@
-﻿import { IQueryResults } from "../API/APIInterfaces";
+﻿//Converts the query results to JSONLD format according to the sosa standard (https://www.w3.org/TR/2017/REC-vocab-ssn-20171019/)
+//  step 1 - add FeatureOfInterest
+//  step 2 - add ObservableProperties
+//  step 3 - add Sensors
+//  step 4 - add Observations
+//Embed results in @graph member
+
+import { IQueryResults } from "../API/APIInterfaces";
 import { JSONLDConfig } from "./JSONLDconfig";
 import { AirQualityServerConfig } from "../AirQualityServerConfig";
 var geohash = require('ngeohash');

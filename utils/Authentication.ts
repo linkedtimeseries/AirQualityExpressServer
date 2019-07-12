@@ -1,4 +1,12 @@
-﻿import { AirQualityServerConfig } from "../AirQualityServerConfig";
+﻿//implementation of the Obelisk authentication as described by https://obelisk.ilabt.imec.be/api/v1/docs/security/auth-details/
+//url references can be found in class AirQualityServerConfig
+//client_id and client_secret are read from file obeliskLogin.json, 
+//format {
+//    "ObeliskClientId": "xxx",
+//    "ObeliskClientSecret": "yyy"
+//}
+
+import { AirQualityServerConfig } from "../AirQualityServerConfig";
 
 const fetch = require('node-fetch');
 const querystring = require('querystring');
@@ -17,7 +25,7 @@ export class ObeliskClientAuthentication {
     constructor(private client_id: string, private client_secret: string, private log: Boolean = true) {
     }
 
-    public async initTokens() {
+    public async initTokens() : Promise<void> {
         await this.authenticateToObelisk();
         if (this.log) {
             console.log('init - auth');
@@ -33,7 +41,7 @@ export class ObeliskClientAuthentication {
         console.log('set interval:' + this.expires_in);
         interval(async () => this.refreshRPT(), this.expires_in*900); //convert to miliseconds + take margin (10%)
     }
-    private async authenticateToObelisk() {
+    private async authenticateToObelisk() : Promise<void> {
         let authString = (new Buffer(this.client_id + ':' + this.client_secret)).toString('base64');
         let headersPost = {
             'Authorization': 'Basic ' + authString,
@@ -53,7 +61,7 @@ export class ObeliskClientAuthentication {
             })
             .catch(err => console.error(err));
     }
-    private async getRPTTokens() {        
+    private async getRPTTokens() : Promise<void> {        
         let headersPost = {
             'Authorization': 'Bearer ' + this.authTokens.access_token,
             'Content-type': 'application/x-www-form-urlencoded',
@@ -76,7 +84,7 @@ export class ObeliskClientAuthentication {
         let header = { 'authorization': 'Bearer ' + this.RPTTokens.access_token };
         return header;
     }
-    public async refreshRPT() {
+    public async refreshRPT():Promise<void> {
         let headersPost = {           
             'Content-type': 'application/x-www-form-urlencoded',
         };

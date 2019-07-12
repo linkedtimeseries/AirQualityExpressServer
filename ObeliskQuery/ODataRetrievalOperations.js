@@ -1,4 +1,7 @@
 "use strict";
+//Implementation of the Obelisk data retrieval operation /api/v1/scopes/{scopeId}/query/{metricId}/events
+//(https://obelisk.ilabt.imec.be/swagger/?urls.primaryName=Obelisk%20API%20v1)
+//The result gives the raw events for the specific metric
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -17,7 +20,7 @@ class ObeliskDataRetrievalOperations {
         this.auth = auth;
         this.log = log;
     }
-    GetEvents(metricId, geoHash, fromTime_ms, toTime_ms, limit) {
+    getEvents(metricId, geoHash, fromTime_ms, toTime_ms, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             let resultsStatus;
             let results;

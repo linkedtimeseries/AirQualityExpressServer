@@ -1,4 +1,8 @@
-﻿import { ObeliskClientAuthentication } from "../utils/Authentication";
+﻿//Implementation of the Obelisk data retrieval operation /api/v1/scopes/{scopeId}/query/{metricId}/events
+//(https://obelisk.ilabt.imec.be/swagger/?urls.primaryName=Obelisk%20API%20v1)
+//The result gives the raw events for the specific metric
+
+import { ObeliskClientAuthentication } from "../utils/Authentication";
 import { IObeliskSpatialQueryCodeAndResults } from "./ObeliskQueryInterfaces";
 import { AirQualityServerConfig } from "../AirQualityServerConfig";
 
@@ -9,7 +13,7 @@ export class ObeliskDataRetrievalOperations {
     static readonly address: string = AirQualityServerConfig.ObeliskAddress;
     constructor(private scopeId: string, private auth: ObeliskClientAuthentication, private log: Boolean = true) { }
 
-    public async GetEvents(metricId: string, geoHash: string[], fromTime_ms?: number, toTime_ms?: number,limit?:number): Promise<IObeliskSpatialQueryCodeAndResults> {
+    public async getEvents(metricId: string, geoHash: string[], fromTime_ms?: number, toTime_ms?: number,limit?:number): Promise<IObeliskSpatialQueryCodeAndResults> {
         let resultsStatus: number;
         let results: any;
         let url = ObeliskDataRetrievalOperations.address

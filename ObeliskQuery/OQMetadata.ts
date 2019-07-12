@@ -1,5 +1,9 @@
-﻿import { ObeliskClientAuthentication } from "../utils/Authentication";
-import { IObeliskMetadataMetricsQueryCodeAndResults, IObeliskMetadataThingsQueryCodeAndResults } from "./ObeliskQueryInterfaces";
+﻿//Implementation of the Obelisk metadata query : /scopes/{scopeId}/metrics 
+//(https://obelisk.ilabt.imec.be/swagger/?urls.primaryName=Obelisk%20API%20v1)
+//The result lists the metrics for the given scopeId
+
+import { ObeliskClientAuthentication } from "../utils/Authentication";
+import { IObeliskMetadataMetricsQueryCodeAndResults} from "./ObeliskQueryInterfaces";
 import { AirQualityServerConfig } from "../AirQualityServerConfig";
 
 const fetch = require('node-fetch');
@@ -8,7 +12,7 @@ export class ObeliskQueryMetadata {
     static readonly address: string = AirQualityServerConfig.ObeliskAddress;
     constructor(private scopeId: string, private auth: ObeliskClientAuthentication, private log: Boolean=true) { }
 
-    public async GetMetrics(): Promise<IObeliskMetadataMetricsQueryCodeAndResults> {
+    public async getMetrics(): Promise<IObeliskMetadataMetricsQueryCodeAndResults> {
         let resultsStatus: number;
         let results: any;
         let url = ObeliskQueryMetadata.address + '/api/v1/scopes/' + this.scopeId + '/metrics';

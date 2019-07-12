@@ -1,4 +1,6 @@
-﻿export abstract class JSONLDConfig {
+﻿//abstract class that contains configuration information for building the JSONLD output.
+
+export abstract class JSONLDConfig {
     static readonly context: string = '"@context":{'
         + '"sosa":"http://wwww.w3.org/ns/sosa/"'
         + ',"sosa:observes":{"@type":"@id"}'

@@ -46,7 +46,7 @@ function getObeliskDataRetrievalOperations(scopeId) {
 let metricIds = new Array();
 function startGetMetricIds(scopeId) {
     return __awaiter(this, void 0, void 0, function* () {
-        let metadata = yield (new OQMetadata_1.ObeliskQueryMetadata(AirQualityServerConfig_1.AirQualityServerConfig.scopeId, yield getAuth(), true)).GetMetrics();
+        let metadata = yield (new OQMetadata_1.ObeliskQueryMetadata(AirQualityServerConfig_1.AirQualityServerConfig.scopeId, yield getAuth(), true)).getMetrics();
         for (let x of metadata.results) {
             metricIds.push(x.id);
         }
@@ -59,6 +59,7 @@ function getMetricIds(scopeId) {
         return metricIds;
     });
 }
+//processEvents construct a QueryResults object from the received IObeliskSpatialQueryCodeAndResults list.
 function processEvents(data, geoHashUtils, metrics) {
     let queryResults = new QueryResults_1.QueryResults();
     let id = 0;
@@ -75,10 +76,10 @@ function processEvents(data, geoHashUtils, metrics) {
             for (let r of d.results.values) {
                 let ii = geoHashUtils.isWithinTile(r[colNr].toString());
                 if (ii) {
-                    metricResults.AddValues(r);
+                    metricResults.addValues(r);
                 }
             }
-            queryResults.AddMetricResults(metricResults);
+            queryResults.addMetricResults(metricResults);
         }
     }
     return queryResults;
@@ -87,7 +88,7 @@ function processEvents(data, geoHashUtils, metrics) {
 exports.data_get_z_x_y_page = function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         let metrics;
-        let geoHashUtiles;
+        let geoHashUtils;
         let gHashes;
         let date;
         let fromDate;
@@ -101,8 +102,8 @@ exports.data_get_z_x_y_page = function (req, res) {
                 return;
             }
             try {
-                geoHashUtiles = new GeoHashUtils_1.GeoHashUtils(tile);
-                gHashes = geoHashUtiles.getGeoHashes();
+                geoHashUtils = new GeoHashUtils_1.GeoHashUtils(tile);
+                gHashes = geoHashUtils.getGeoHashes();
             }
             catch (e) {
                 res.status(400).send("geoHash error : " + e);
@@ -141,9 +142,9 @@ exports.data_get_z_x_y_page = function (req, res) {
                 let DR = yield getObeliskDataRetrievalOperations(AirQualityServerConfig_1.AirQualityServerConfig.scopeId);
                 let qRes = new Array();
                 for (let i = 0; i < metrics.length; i++) {
-                    qRes[i] = DR.GetEvents(metrics[i], gHashes, fromDate, toDate);
+                    qRes[i] = DR.getEvents(metrics[i], gHashes, fromDate, toDate);
                 }
-                QR = yield Promise.all(qRes).then(data => { return processEvents(data, geoHashUtiles, metrics); });
+                QR = yield Promise.all(qRes).then(data => { return processEvents(data, geoHashUtils, metrics); });
                 if (QR.isEmpty()) {
                     res.status(400).send("query error : no results");
                     return;

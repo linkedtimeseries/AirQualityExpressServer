@@ -64,7 +64,6 @@
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="ObeliskQuery\OQMetadata.ts" />
-    <TypeScriptCompile Include="ObeliskQuery\OQSpatial.ts" />
     <TypeScriptCompile Include="routes\dataRouter.ts" />
     <TypeScriptCompile Include="routes\index.ts" />
     <TypeScriptCompile Include="routes\user.ts" />
@@ -73,6 +72,7 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="ObeliskQuery\OQMetadata.js.map" />
+    <Content Include="OverviewAQS.pdf" />
     <Content Include="tsconfig.json" />
     <Content Include="package.json" />
     <Content Include="public\stylesheets\main.css" />

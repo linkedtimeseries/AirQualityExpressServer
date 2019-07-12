@@ -1,4 +1,6 @@
-﻿export interface IObeliskSpatialQueryResults {
+﻿//Interfaces to describe the Obelisk query output (IObeliskSpatialQueryResults and IObeliskMetadataMetricsQueryResults).
+//IxxxCodeAndResults adds the response code to the output.
+export interface IObeliskSpatialQueryResults {
     columns: string[],
     values : (string|number)[][]
 }
@@ -14,13 +16,4 @@ export interface IObeliskMetadataMetricsQueryResults {
 export interface IObeliskMetadataMetricsQueryCodeAndResults {
     responseCode: number,
     results: IObeliskMetadataMetricsQueryResults[]
-}
-
-export interface IObeliskMetadataThingsQueryResults {
-    id: string,
-    displayName: string
-}
-export interface IObeliskMetadataThingsQueryCodeAndResults {
-    responseCode: number,
-    results: IObeliskMetadataThingsQueryResults[]
 }
