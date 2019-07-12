@@ -16,6 +16,8 @@ const QueryResults_1 = require("../API/QueryResults");
 const AirQualityServerConfig_1 = require("../AirQualityServerConfig");
 const JSONLDBuilder_1 = require("../JSONLD/JSONLDBuilder");
 let airQualityServerConfig = new AirQualityServerConfig_1.AirQualityServerConfig();
+//Make an ObeliskClientAuthentication object available.
+//If the object is not available yet, create it and get the Tokens
 let auth = null;
 function startAuth() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -30,6 +32,8 @@ function getAuth() {
         return auth;
     });
 }
+//Make ObeliskDataRetrievalOperations object available.
+//If the object is not available yet, create it.
 let obeliskDataRetrievalOperations = null;
 function startObeliskDataRetrievalOperations(scopeId) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -43,6 +47,8 @@ function getObeliskDataRetrievalOperations(scopeId) {
         return obeliskDataRetrievalOperations;
     });
 }
+//Make metricIds available.
+//If no values available get metrics from Obelisk via ObeliskQueryMetadata.
 let metricIds = new Array();
 function startGetMetricIds(scopeId) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -84,7 +90,12 @@ function processEvents(data, geoHashUtils, metrics) {
     }
     return queryResults;
 }
-//date is always UTC
+//Process the get /zoom/x/y/page request
+//step 1 - convert tile info to geohashes
+//step 2 - get the metricIds (remark : currently metrics can still be given in the get request, should standard be all metrics)
+//step 3 - get the query date from request
+//step 4 - query the obelisk API and contruct a QueryResults output
+//step 5 - construct the JSONLD output
 exports.data_get_z_x_y_page = function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         let metrics;
@@ -101,6 +112,7 @@ exports.data_get_z_x_y_page = function (req, res) {
                 res.status(400).send("only zoom level 14 allowed");
                 return;
             }
+            //calculate geohashes
             try {
                 geoHashUtils = new GeoHashUtils_1.GeoHashUtils(tile);
                 gHashes = geoHashUtils.getGeoHashes();
@@ -124,7 +136,8 @@ exports.data_get_z_x_y_page = function (req, res) {
                 res.status(400).send("metrics error : " + e);
                 return;
             }
-            //date
+            //date is always UTC
+            //get date from url request
             try {
                 date = (new Date(req.query.page)).setUTCHours(0, 0, 0, 0);
                 if (isNaN(date)) {
@@ -137,8 +150,8 @@ exports.data_get_z_x_y_page = function (req, res) {
                 res.status(400).send("date error : " + e);
                 return;
             }
+            //query obelisk
             try {
-                //query obelisk
                 let DR = yield getObeliskDataRetrievalOperations(AirQualityServerConfig_1.AirQualityServerConfig.scopeId);
                 let qRes = new Array();
                 for (let i = 0; i < metrics.length; i++) {
@@ -154,8 +167,8 @@ exports.data_get_z_x_y_page = function (req, res) {
                 res.status(400).send("query error : " + e);
                 return;
             }
+            //convert to jsonld
             try {
-                //convert to jsonld
                 let builder = new JSONLDBuilder_1.JSONLDBuilder(tile, req.query.page, QR);
                 builder.buildData();
                 let json = builder.getJSONLD();

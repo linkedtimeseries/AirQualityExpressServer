@@ -4,6 +4,7 @@
 //  step 2 - add the DctermsInfo
 Object.defineProperty(exports, "__esModule", { value: true });
 const JSONLDconfig_1 = require("./JSONLDconfig");
+const AirQualityServerConfig_1 = require("../AirQualityServerConfig");
 class JSONLDDocumentBuilder {
     constructor(tile, observationTimeQuery) {
         this.json = "";
@@ -11,6 +12,7 @@ class JSONLDDocumentBuilder {
         this.latitudeTile = tile.y;
         this.longitudeTile = tile.x;
         this.observationTimeQuery = observationTimeQuery;
+        this.airQualityServerConfig = new AirQualityServerConfig_1.AirQualityServerConfig();
     }
     buildTilesInfo() {
         let ti = "";
@@ -50,8 +52,8 @@ class JSONLDDocumentBuilder {
         di += '"dcterms:isPartOf":{';
         di += '"@id":"' + JSONLDconfig_1.JSONLDConfig.openobeliskAddress + '"';
         di += ',"@type":"hydra:Collection"';
-        di += ',"dcterms:license":"' + JSONLDconfig_1.JSONLDConfig.dctermsLicense + '"';
-        di += ',"dcterms:rights":"' + JSONLDconfig_1.JSONLDConfig.dctermsRights + '"';
+        di += ',"dcterms:license":"' + this.airQualityServerConfig.dcterms_license + '"';
+        di += ',"dcterms:rights":"' + this.airQualityServerConfig.dcterms_rights + '"';
         di += ',"hydra:search":{';
         di += '   "@type":"hydraIriTemplate"';
         di += '    ,"hydra:template":"https://tiles.openplanner.team/planet/14/{x}/{y}/{t}"';

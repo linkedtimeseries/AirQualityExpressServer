@@ -4,6 +4,7 @@
 
 import { JSONLDConfig } from "./JSONLDconfig";
 import { Tile } from "../utils/GeoHashUtils";
+import { AirQualityServerConfig } from "../AirQualityServerConfig";
 
 export class JSONLDDocumentBuilder {
     private json: string="";
@@ -11,11 +12,13 @@ export class JSONLDDocumentBuilder {
     private longitudeTile: number;
     private latitudeTile: number;
     private observationTimeQuery: string;
+    private airQualityServerConfig;
     constructor(tile:Tile,observationTimeQuery:string) {
         this.zoom = tile.zoom;
         this.latitudeTile = tile.y;
         this.longitudeTile = tile.x;
         this.observationTimeQuery = observationTimeQuery;
+        this.airQualityServerConfig = new AirQualityServerConfig();
     }
     private buildTilesInfo():string {
         let ti: string = "";
@@ -57,8 +60,8 @@ export class JSONLDDocumentBuilder {
         di += '"dcterms:isPartOf":{';
         di += '"@id":"' + JSONLDConfig.openobeliskAddress + '"';
         di += ',"@type":"hydra:Collection"';
-        di += ',"dcterms:license":"' + JSONLDConfig.dctermsLicense + '"';
-        di += ',"dcterms:rights":"' + JSONLDConfig.dctermsRights + '"';
+        di += ',"dcterms:license":"' + this.airQualityServerConfig.dcterms_license + '"';
+        di += ',"dcterms:rights":"' + this.airQualityServerConfig.dcterms_rights + '"';
         di += ',"hydra:search":{';
         di += '   "@type":"hydraIriTemplate"';
         di += '    ,"hydra:template":"https://tiles.openplanner.team/planet/14/{x}/{y}/{t}"';

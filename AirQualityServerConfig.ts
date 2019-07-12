@@ -4,6 +4,8 @@ export class AirQualityServerConfig {
     static readonly scopeId: string = 'cot.airquality';
     readonly ObeliskClientId: string ;
     readonly ObeliskClientSecret: string;
+    readonly dcterms_license: string;
+    readonly dcterms_rights: string;
     static readonly dateTimeFrame: number = 86400000;//window is 1 day in msec
     static readonly geoHashColumnName: string = 'geohash';
     static readonly sourceIdColumnName: string = 'sourceId';
@@ -18,5 +20,7 @@ export class AirQualityServerConfig {
         let config = JSON.parse(rawdata.trim()); 
         this.ObeliskClientId = config.ObeliskClientId;
         this.ObeliskClientSecret = config.ObeliskClientSecret;
+        this.dcterms_license = config.dcterms_license;
+        this.dcterms_rights = config.dcterms_rights;
     }
 }

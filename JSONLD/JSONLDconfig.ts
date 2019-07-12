@@ -17,7 +17,5 @@ export abstract class JSONLDConfig {
         +'}';
     static readonly FeatureOfInterest: string = "AirQuality";
     static readonly baseURL: string = "http://example.org/data/";
-    static readonly dctermsLicense = "te configureren(url)";
-    static readonly dctermsRights = "te configureren";
     static readonly openobeliskAddress = "https://openobelisk.ilabt.imec/be/";
 }

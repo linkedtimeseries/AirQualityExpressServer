@@ -7,6 +7,8 @@ class AirQualityServerConfig {
         let config = JSON.parse(rawdata.trim());
         this.ObeliskClientId = config.ObeliskClientId;
         this.ObeliskClientSecret = config.ObeliskClientSecret;
+        this.dcterms_license = config.dcterms_license;
+        this.dcterms_rights = config.dcterms_rights;
     }
 }
 AirQualityServerConfig.scopeId = 'cot.airquality';
