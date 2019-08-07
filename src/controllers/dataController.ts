@@ -97,22 +97,41 @@ function processEvents(data: IObeliskSpatialQueryCodeAndResults[], geoHashUtils:
 }
 
 // Process the get /zoom/x/y/page request
-// step 1 - convert tile info to geohashes
-// step 2 - get the metricIds (remark : currently metrics can still be given in the get request,
+// step 1 - redirect the client to the proper document if needed
+// step 2 - convert tile info to geohashes
+// step 3 - get the metricIds (remark : currently metrics can still be given in the get request,
 //          should standard be all metrics)
-// step 3 - get the query date from request
-// step 4 - query the obelisk API and contruct a QueryResults output
-// step 5 - construct the JSONLD output
+// step 4 - get the query date from request
+// step 5 - query the obelisk API and contruct a QueryResults output
+// step 6 - construct the JSONLD output
 export async function data_get_z_x_y_page(req, res) {
     let metrics: string[];
     let geoHashUtils: GeoHashUtils;
     let gHashes: string[];
-    let date: number;
+    let page: Date;
     let fromDate: number;
     let toDate: number;
     let QR: IQueryResults;
 
     try {
+        page = new Date(decodeURIComponent(req.query.page));
+        // Re-direct to now time if no date is provided
+        if (page.toString() === "Invalid Date") {
+            const today = new Date();
+            today.setUTCHours(0, 0, 0, 0);
+            res.location("/data/14/" + req.params.tile_x + "/" + req.params.tile_y + "?page=" + today.toISOString());
+            res.status(302).send();
+            return;
+        }
+
+        // Re-direct to today's date if necessary
+        if (page.getUTCHours() !== 0 || page.getUTCMinutes() !== 0 || page.getUTCSeconds() !== 0
+            || page.getUTCMilliseconds() !== 0) {
+            page.setUTCHours(0, 0, 0, 0);
+            res.location("/data/14/" + req.params.tile_x + "/" + req.params.tile_y + "?page=" + page.toISOString());
+            res.status(302).send();
+            return;
+        }
         // convert tile to geoHashes
         const tile: ITile = {
             x: Number(req.params.tile_x),
@@ -120,7 +139,7 @@ export async function data_get_z_x_y_page(req, res) {
             zoom: Number(req.params.zoom),
         };
         if (tile.zoom !== 14) {
-            res.status(400).send("only zoom level 14 allowed");
+            res.status(400).send("only zoom level 14 is allowed");
             return;
         }
         // calculate geohashes
@@ -147,12 +166,8 @@ export async function data_get_z_x_y_page(req, res) {
         // date is always UTC
         // get date from url request
         try {
-            date = (new Date(req.query.page)).setUTCHours(0, 0, 0, 0);
-            if (isNaN(date)) {
-                throw new Error("date isNaN");
-            }
-            fromDate = date;
-            toDate = date + AirQualityServerConfig.dateTimeFrame;
+            fromDate = page.getTime();
+            toDate = page.getTime() + AirQualityServerConfig.dateTimeFrame;
         } catch (e) {
             res.status(400).send("date error : " + e);
             return;
