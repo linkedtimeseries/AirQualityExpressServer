@@ -25,13 +25,13 @@ Clone this repository and run `npm install`.
 
 Once the server is running you can query the data using the following template:
 
-```http
+```
 http://localhost:3000/data/14/{x}/{y}{?page}
 ```
 
 Where `x` and `y` are the coordinates of a certain tile and `page` is an ISO date that determines the day the air quality measurements were taken. For example:
 
-```http
+```
 http://localhost:3000/data/14/8392/5467?page=2019-08-06T00:00:00.000Z
 ```
 
