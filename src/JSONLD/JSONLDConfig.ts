@@ -2,28 +2,44 @@
 
 export default abstract class JSONLDConfig {
     public static readonly context = {
-        "@context": {
-            "sosa": "http://www.w3.org/ns/sosa/",
-            "sosa:observes": {
-                "@type": "@id",
-            },
-            "sosa:hasFeatureOfInterest": {
-                "@type": "@id",
-            },
-            "sosa:madeBySensor": {
-                "@type": "@id",
-            },
-            "sosa:observedProperty": {
-                "@type": "@id",
-            },
-            "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-            "geo": "http://www.w3.org/2003/01/geo/wgs84_pos#",
-            "tiles": "https://w3id.org/tree/terms#",
-            "ssn": "http://www.w3.org/ns/ssn/",
-            "dcterms": "http://purl.org/dc/terms/",
-            "hydra": "http://www.wr.org/ns/hydra/core#",
-            "ts": "http://xxx/",
+        sosa: "http://www.w3.org/ns/sosa/",
+        observes: {
+            "@id": "http://www.w3.org/ns/sosa/observes",
+            "@type": "@id",
         },
+        hasSimpleResult: {
+            "@id": "http://www.w3.org/ns/sosa/hasSimpleResult",
+            "@type": "@id",
+        },
+        hasFeatureOfInterest: {
+            "@id": "http://www.w3.org/ns/sosa/hasFeatureOfInterest",
+            "@type": "@id",
+        },
+        observedProperty: {
+            "@id": "http://www.w3.org/ns/sosa/observedProperty",
+            "@type": "@id",
+        },
+        madeBySensor: {
+            "@id": "http://www.w3.org/ns/sosa/madeBySensor",
+            "@type": "@id",
+        },
+        resultTime: {
+            "@id": "http://www.w3.org/ns/sosa/resultTime",
+            "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+        },
+        label: {
+            "@id": "http://www.w3.org/2000/01/rdf-schema#label",
+        },
+        lat: {
+            "@id": "http://www.w3.org/2003/01/geo/wgs84_pos#lat",
+        },
+        long: {
+            "@id": "http://www.w3.org/2003/01/geo/wgs84_pos#long",
+        },
+        tiles: "https://w3id.org/tree/terms#",
+        dcterms: "http://purl.org/dc/terms/",
+        hydra: "http://www.wr.org/ns/hydra/core#",
+        ts: "http://xxx/",
     };
     public static readonly FeatureOfInterest: string = "AirQuality";
     public static readonly baseURL: string = "http://example.org/data/";
