@@ -104,7 +104,7 @@ export class JSONLDDataBuilder {
             for (let v of mr.values) {
                 observations += ',' + this.buildObservation(v[colNrTime], v[colNrValue], v[colNrSensorId].toString(), v[colNrGeoHash].toString(), mr.metricId);
                 i++;
-                if (i > 2) break;
+                //if (i > 2) break;
             }
         }
         return observations.substr(1);

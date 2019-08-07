@@ -19,8 +19,6 @@ JSONLDConfig.context = '"@context":{'
     + '}';
 JSONLDConfig.FeatureOfInterest = "AirQuality";
 JSONLDConfig.baseURL = "http://example.org/data/";
-//static readonly dctermsLicense = "te configureren(url)";
-//static readonly dctermsRights = "te configureren";
 JSONLDConfig.openobeliskAddress = "https://openobelisk.ilabt.imec/be/";
 exports.JSONLDConfig = JSONLDConfig;
 //# sourceMappingURL=JSONLDconfig.js.map
