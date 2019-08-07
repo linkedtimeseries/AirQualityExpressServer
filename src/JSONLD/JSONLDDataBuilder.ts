@@ -27,7 +27,7 @@ export default class JSONLDDataBuilder {
         return {
             "@id": JSONLDConfig.baseURL + JSONLDConfig.FeatureOfInterest,
             "@type": "sosa:FeatureOfInterest",
-            "rdfs:label": JSONLDConfig.FeatureOfInterest,
+            "label": JSONLDConfig.FeatureOfInterest,
         };
     }
 
@@ -35,7 +35,7 @@ export default class JSONLDDataBuilder {
         return {
             "@id": JSONLDConfig.baseURL + metricId,
             "@type": "sosa:ObervableProperty",
-            "rdfs:label": "metricId." + metricId,
+            "label": "metricId=" + metricId,
         };
     }
 
@@ -54,8 +54,8 @@ export default class JSONLDDataBuilder {
         return {
             "@id": JSONLDConfig.baseURL + sensorId,
             "@type": "sosa:Sensor",
-            "rdfs:label": "sourceId." + sensorId,
-            "sosa:observes": metrics,
+            "label": "sourceId=" + sensorId,
+            "observes": metrics,
         };
     }
 
@@ -91,13 +91,13 @@ export default class JSONLDDataBuilder {
         return {
             "@id": JSONLDConfig.baseURL + metricId + "/" + sensorId + "/" + time,
             "@type": "sosa:Observation",
-            "sosa:hasSimpleResult": value,
-            "sosa:resultTime": date.toISOString(),
-            "sosa:observedProperty": JSONLDConfig.baseURL + metricId,
-            "sosa:madeBySensor": JSONLDConfig.baseURL + sensorId,
-            "sosa:hasFeatureOfInterest": JSONLDConfig.baseURL + JSONLDConfig.FeatureOfInterest,
-            "geo:lat": latlon.latitude,
-            "geo:long": latlon.longitude,
+            "hasSimpleResult": value,
+            "resultTime": date.toISOString(),
+            "observedProperty": JSONLDConfig.baseURL + metricId,
+            "madeBySensor": JSONLDConfig.baseURL + sensorId,
+            "hasFeatureOfInterest": JSONLDConfig.baseURL + JSONLDConfig.FeatureOfInterest,
+            "lat": latlon.latitude,
+            "long": latlon.longitude,
         };
     }
 
