@@ -10,25 +10,12 @@ import JSONLDDataBuilder from "./JSONLDDataBuilder";
 import JSONLDDocumentBuilder from "./JSONLDDocumentBuilder";
 
 export default class JSONLDBuilder {
-    private json: string;
-    private dataBuilder: JSONLDDataBuilder;
-    private documentBuilder: JSONLDDocumentBuilder;
-
-    constructor(tile: ITile, observationTimeQuery: string, QR: IQueryResults) {
-        this.dataBuilder = new JSONLDDataBuilder(QR);
-        this.documentBuilder = new JSONLDDocumentBuilder(tile, observationTimeQuery);
-    }
-
-    public buildData(): void {
-        this.dataBuilder.buildData();
-        this.documentBuilder.buildDocument();
-        this.json = "{" + JSONLDConfig.context;
-        this.json += "," + this.documentBuilder.getJSONLD();
-        this.json += "," + this.dataBuilder.getJSONLD();
-        this.json += "}";
-    }
-
-    public getJSONLD(): string {
-        return this.json;
+    public build(tile: ITile, observationTimeQuery: string, results: IQueryResults): object {
+        const dataBuilder = new JSONLDDataBuilder();
+        const documentBuilder = new JSONLDDocumentBuilder();
+        const blob = documentBuilder.build(tile, observationTimeQuery);
+        blob["@context"] = JSONLDConfig.context;
+        blob["@graph"] = dataBuilder.build(results);
+        return blob;
     }
 }

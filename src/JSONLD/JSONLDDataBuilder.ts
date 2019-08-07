@@ -12,72 +12,57 @@ import IQueryResults from "../API/IQueryResults";
 import JSONLDConfig from "./JSONLDConfig";
 
 export default class JSONLDDataBuilder {
-    private QR: IQueryResults;
-    private json: string = "";
 
-    constructor(QR: IQueryResults) {
-        this.QR = QR;
+    public build(results: IQueryResults): object {
+        const graph = [];
+        graph.push(this.buildFeatureOfInterest());
+        return graph.concat(
+            this.buildObservableProperties(results),
+            this.buildSensors(results),
+            this.buildObservations(results),
+        );
     }
 
-    public buildData(): void {
-        this.json += '"@graph":[' + this.buildFeatureOfInterest();
-        this.json += "," + this.buildObservableProperties();
-        this.json += "," + this.buildSensors();
-        this.json += "," + this.buildObservations();
-        this.json += "]";
+    private buildFeatureOfInterest() {
+        return {
+            "@id": JSONLDConfig.baseURL + JSONLDConfig.FeatureOfInterest,
+            "@type": "sosa:FeatureOfInterest",
+            "rdfs:label": JSONLDConfig.FeatureOfInterest,
+        };
     }
 
-    public getJSONLD(): string {
-        return this.json;
+    private buildObservableProperty(metricId: string) {
+        return {
+            "@id": JSONLDConfig.baseURL + metricId,
+            "@type": "sosa:ObervableProperty",
+            "rdfs:label": "metricId." + metricId,
+        };
     }
 
-    private buildFeatureOfInterest(): string {
-        let foi: string = "{";
-        foi += '"@id": "' + JSONLDConfig.baseURL + JSONLDConfig.FeatureOfInterest + '"';
-        foi += ',"@type":"sosa:FeatureOfInterest"';
-        foi += ',"rdfs:label":"' + JSONLDConfig.FeatureOfInterest + '"';
-        foi += "}";
-        return foi;
+    private buildObservableProperties(results: IQueryResults) {
+        return results.metricResults.map((mr) => {
+            return this.buildObservableProperty(mr.metricId);
+        });
     }
 
-    private buildObservableProperty(metricId: string): string {
-        let op: string = "{";
-        op += '"@id":"' + JSONLDConfig.baseURL + metricId + '"';
-        op += ',"@type":"sosa:ObervableProperty"';
-        op += ',"rdfs:label":"metricId.' + metricId + '"';
-        op += "}";
-        return op;
-    }
-
-    private buildObservableProperties(): string {
-        let op: string = "";
-
-        for (const mr of this.QR.metricResults) {
-            op += "," + this.buildObservableProperty(mr.metricId);
-        }
-        return op.substr(1);
-    }
-
-    private buildSensor(sensorId: string, metricIds: Set<string>): string {
-        let sensor: string = "{";
-        sensor += '"@id":"' + JSONLDConfig.baseURL + sensorId + '"';
-        sensor += ',"@type":"sosa:Sensor"';
-        sensor += ',"rdfs:label":"sourceId.' + sensorId + '"';
-        sensor += ',"sosa:observes":[';
-        let metrics = "";
+    private buildSensor(sensorId: string, metricIds: Set<string>) {
+        const metrics = [];
         for (const metricId of metricIds) {
-            metrics += ',"' + JSONLDConfig.baseURL + metricId + '"';
+            metrics.push(JSONLDConfig.baseURL + metricId);
         }
-        sensor += metrics.substr(1);
-        sensor += "]";
-        sensor += "}";
-        return sensor;
+
+        return {
+            "@id": JSONLDConfig.baseURL + sensorId,
+            "@type": "sosa:Sensor",
+            "rdfs:label": "sourceId." + sensorId,
+            "sosa:observes": metrics,
+        };
     }
 
-    private buildSensors(): string {
-        const colNr: number = this.QR.columns.indexOf(AirQualityServerConfig.sourceIdColumnName);
+    private buildSensors(results: IQueryResults) {
+        const colNr: number = results.columns.indexOf(AirQualityServerConfig.sourceIdColumnName);
         const sensorsMap = new Map<string, Set<string>>();
-        for (const mr of this.QR.metricResults) {
+        for (const mr of results.metricResults) {
             for (const v of mr.values) {
                 if (sensorsMap.has(v[colNr].toString())) {
                     sensorsMap.get(v[colNr].toString()).add(mr.metricId);
@@ -86,12 +71,12 @@ export default class JSONLDDataBuilder {
                 }
             }
         }
-        let s: string = "";
 
+        const s = [];
         for (const sensor of sensorsMap.keys()) {
-            s += "," + this.buildSensor(sensor, sensorsMap.get(sensor));
+            s.push(this.buildSensor(sensor, sensorsMap.get(sensor)));
         }
-        return s.substr(1);
+        return s;
     }
 
     private buildObservation(
@@ -100,41 +85,40 @@ export default class JSONLDDataBuilder {
         sensorId: string,
         geoHash: string,
         metricId: string,
-    ): string {
+    ) {
         const date = new Date(time);
         const latlon = geohash.decode(geoHash);
-        let observation = "{";
-        observation += '"@id":"' + JSONLDConfig.baseURL + metricId + "/" + sensorId + "/" + time + '"';
-        observation += ',"@type":"sosa:Observation"';
-        observation += ',"sosa:hasSimpleResult":' + value;
-        observation += ',"sosa:resultTime":"' + date.toISOString() + '"';
-        observation += ',"sosa:observedProperty":"' + JSONLDConfig.baseURL + metricId + '"';
-        observation += ',"sosa:madeBySensor":"' + JSONLDConfig.baseURL + sensorId + '"';
-        observation += ',"sosa:hasFeatureOfInterest":"' + JSONLDConfig.baseURL + JSONLDConfig.FeatureOfInterest + '"';
-        observation += ',"geo:lat":' + latlon.latitude;
-        observation += ',"geo:long":' + latlon.longitude;
-        observation += "}";
-        return observation;
+        return {
+            "@id": JSONLDConfig.baseURL + metricId + "/" + sensorId + "/" + time,
+            "@type": "sosa:Observation",
+            "sosa:hasSimpleResult": value,
+            "sosa:resultTime": date.toISOString(),
+            "sosa:observedProperty": JSONLDConfig.baseURL + metricId,
+            "sosa:madeBySensor": JSONLDConfig.baseURL + sensorId,
+            "sosa:hasFeatureOfInterest": JSONLDConfig.baseURL + JSONLDConfig.FeatureOfInterest,
+            "geo:lat": latlon.latitude,
+            "geo:long": latlon.longitude,
+        };
     }
 
-    private buildObservations(): string {
-        let observations: string = "";
-        const colNrTime: number = this.QR.columns.indexOf(AirQualityServerConfig.timeColumnName);
-        const colNrValue: number = this.QR.columns.indexOf(AirQualityServerConfig.valueColumnName);
-        const colNrSensorId: number = this.QR.columns.indexOf(AirQualityServerConfig.sourceIdColumnName);
-        const colNrGeoHash: number = this.QR.columns.indexOf(AirQualityServerConfig.geoHashColumnName);
+    private buildObservations(results: IQueryResults) {
+        const observations = [];
+        const colNrTime: number = results.columns.indexOf(AirQualityServerConfig.timeColumnName);
+        const colNrValue: number = results.columns.indexOf(AirQualityServerConfig.valueColumnName);
+        const colNrSensorId: number = results.columns.indexOf(AirQualityServerConfig.sourceIdColumnName);
+        const colNrGeoHash: number = results.columns.indexOf(AirQualityServerConfig.geoHashColumnName);
 
-        for (const mr of this.QR.metricResults) {
+        for (const mr of results.metricResults) {
             for (const v of mr.values) {
-                observations += "," + this.buildObservation(
+                observations.push(this.buildObservation(
                     v[colNrTime],
                     v[colNrValue],
                     v[colNrSensorId].toString(),
                     v[colNrGeoHash].toString(),
                     mr.metricId,
-                );
+                ));
             }
         }
-        return observations.substr(1);
+        return observations;
     }
 }
