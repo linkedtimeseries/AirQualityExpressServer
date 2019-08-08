@@ -36,10 +36,25 @@ export default abstract class JSONLDConfig {
         long: {
             "@id": "http://www.w3.org/2003/01/geo/wgs84_pos#long",
         },
+        endDate: {
+            "@id": "http://schema.org/endDate",
+            "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+        },
+        startDate: {
+            "@id": "http://schema.org/startDate",
+            "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+        },
+        next: {
+            "@id": "http://www.wr.org/ns/hydra/core#next",
+            "@type": "@id",
+        },
+        previous: {
+            "@id": "http://www.wr.org/ns/hydra/core#previous",
+            "@type": "@id",
+        },
         tiles: "https://w3id.org/tree/terms#",
         dcterms: "http://purl.org/dc/terms/",
         hydra: "http://www.wr.org/ns/hydra/core#",
-        ts: "http://xxx/",
     };
     public static readonly FeatureOfInterest: string = "AirQuality";
     public static readonly baseURL: string = "http://example.org/data/";

@@ -13,19 +13,34 @@ export default class JSONLDDocumentBuilder {
         this.airQualityServerConfig = new AirQualityServerConfig();
     }
 
-    public build(tile: ITile, observationTimeQuery: string): object {
-        return Object.assign({}, this.buildTilesInfo(tile, observationTimeQuery), this.buildDctermsInfo());
+    public build(tile: ITile, page: Date): object {
+        return Object.assign({}, this.buildTilesInfo(tile, page), this.buildDctermsInfo());
     }
 
-    private buildTilesInfo(tile: ITile, observationTimeQuery: string): object {
-        return {
-            "@id": `${JSONLDConfig.openObeliskAddress}/data/${tile.zoom}/` +
-                `${tile.x}/${tile.y}?page=${observationTimeQuery}`,
+    private buildURI(tile: ITile, page: Date) {
+        return `${JSONLDConfig.openObeliskAddress}/data/${tile.zoom}/${tile.x}/${tile.y}?page=${page.toISOString()}`;
+    }
+
+    private buildTilesInfo(tile: ITile, page: Date): object {
+        const previousPage = new Date(page.getTime() - AirQualityServerConfig.dateTimeFrame);
+        const nextPage = new Date(page.getTime() + AirQualityServerConfig.dateTimeFrame);
+
+        const result = {
+            "@id": this.buildURI(tile, page),
             "tiles:zoom": tile.zoom,
             "tiles:longitudeTile": tile.x,
             "tiles:latitudeTile": tile.y,
-            "ts:observationTimeQuery": observationTimeQuery,
+            "startDate": page.toISOString(),
+            "endDate": nextPage.toISOString(),
+            "previous": this.buildURI(tile, previousPage),
+            "next": undefined,
         };
+
+        if (nextPage < new Date()) {
+            result.next = this.buildURI(tile, nextPage);
+        }
+
+        return result;
     }
 
     private buildHydraMapping(): object {
@@ -43,8 +58,8 @@ export default class JSONLDDocumentBuilder {
             }, {
                 "@type": "hydra:IriTemplateMapping",
                 "hydra:variable": "page",
-                "hydra:property": "ts:observationTimeQuery",
-                "hydra:required": true,
+                "hydra:property": "dcterms:date",
+                "hydra:required": false,
             },
         ];
     }
