@@ -10,10 +10,10 @@ import JSONLDDataBuilder from "./JSONLDDataBuilder";
 import JSONLDDocumentBuilder from "./JSONLDDocumentBuilder";
 
 export default class JSONLDBuilder {
-    public build(tile: ITile, observationTimeQuery: string, results: IQueryResults): object {
+    public build(tile: ITile, page: Date, results: IQueryResults): object {
         const dataBuilder = new JSONLDDataBuilder();
         const documentBuilder = new JSONLDDocumentBuilder();
-        const blob = documentBuilder.build(tile, observationTimeQuery);
+        const blob = documentBuilder.build(tile, page);
         blob["@context"] = JSONLDConfig.context;
         blob["@graph"] = dataBuilder.build(results);
         return blob;

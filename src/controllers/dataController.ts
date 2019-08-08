@@ -193,7 +193,7 @@ export async function data_get_z_x_y_page(req, res) {
         // convert to jsonld
         try {
             const builder = new JSONLDBuilder();
-            const blob = builder.build(tile, req.query.page, QR);
+            const blob = builder.build(tile, page, QR);
             res.type("application/ld+json; charset=utf-8");
             res.send(blob);
         } catch (e) {
