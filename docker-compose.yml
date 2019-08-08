@@ -1,0 +1,20 @@
+version: '3.2'
+services:
+  aqs1:
+      build: .
+      tty: true
+      volumes:
+        - '.:/usr/src/app'  
+  aqs2:
+      build: .
+      tty: true
+      volumes:
+        - '.:/usr/src/app'   
+  loadbalancer:
+      build: ./nginx
+      tty: true
+      links:
+          - aqs1
+          - aqs2
+      ports:
+          - '5000:5000'
