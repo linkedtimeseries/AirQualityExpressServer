@@ -58,5 +58,5 @@ export default abstract class JSONLDConfig {
     };
     public static readonly FeatureOfInterest: string = "AirQuality";
     public static readonly baseURL: string = "http://example.org/data/";
-    public static readonly openObeliskAddress = "https://openobelisk.ilabt.imec/be";
+    public static readonly openObeliskAddress = "https://lodi.ilabt.imec.be/air";
 }
