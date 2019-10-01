@@ -24,6 +24,7 @@ export default class ObeliskClientAuthentication {
     private expiresIn: number;
 
     constructor(private clientId: string, private clientSecret: string, private log: boolean = true) {
+        this.expiresIn = 10; // 10 seconds
     }
 
     public async initTokens(): Promise<void> {
