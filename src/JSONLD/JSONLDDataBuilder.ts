@@ -13,14 +13,21 @@ import JSONLDConfig from "./JSONLDConfig";
 
 export default class JSONLDDataBuilder {
 
-    public build(results: IQueryResults): object {
+    public build(results: IQueryResults, fromDate: number, avgType: string): object {
         const graph = [];
         graph.push(this.buildFeatureOfInterest());
-        return graph.concat(
+        graph.concat(
             this.buildObservableProperties(results),
             this.buildSensors(results),
-            this.buildObservations(results),
+
         );
+        // TODO: switch to enum
+        const types = new Set(["min", "hour", "day"]);
+        if (types.has(avgType)) {
+            return graph.concat(this.buildAverageObservations(results, fromDate, avgType));
+        } else {
+            return graph.concat(this.buildObservations(results));
+        }
     }
 
     private buildFeatureOfInterest() {
@@ -121,4 +128,89 @@ export default class JSONLDDataBuilder {
         }
         return observations;
     }
+
+    private buildAverageObservation(
+        time: (number | string),
+        value: (number | string),
+        metricId: string,
+    ) {
+        const date = new Date(time);
+        return {
+            "@id": JSONLDConfig.baseURL + metricId + "/" + time,
+            "@type": "sosa:Observation",
+            "hasSimpleResult": value,
+            "resultTime": date.toISOString(),
+            "observedProperty": JSONLDConfig.baseURL + metricId,
+            "hasFeatureOfInterest": JSONLDConfig.baseURL + JSONLDConfig.FeatureOfInterest,
+        };
+    }
+
+    // same as buildObservations, but builds observations averaged over 5 minutes
+    // assumptions:
+    // - all observations are in the same tile
+    // TODO: mention sensors?
+    private buildAverageObservations(results: IQueryResults, startDate: number, avgType: string) {
+        const avgMinuteObservations = [];
+        // startDate + 5 minutes
+        let nextAvg: number = startDate;
+        let timeInterval = 0;
+
+        switch (avgType) {
+            case "min":
+                timeInterval = 300000;
+                break;
+            case "hour":
+                timeInterval = 3600000;
+                break;
+            case "day":
+                timeInterval = 86400000;
+        }
+        // total of observation values of 5 minutes
+        let tempTotal: number = 0;
+        // total count of observations of 5 minutes
+        let count: number = 0;
+
+        const colNrTime: number = results.columns.indexOf(AirQualityServerConfig.timeColumnName);
+        const colNrValue: number = results.columns.indexOf(AirQualityServerConfig.valueColumnName);
+
+        for (const mr of results.metricResults) {
+            // some metrics have no values
+            if (mr.values.length === 0) {
+                continue;
+            }
+            for (const v of mr.values) {
+                if (v[colNrTime] <= nextAvg) {
+                    tempTotal = tempTotal + Number(v[colNrValue]);
+                    count++;
+                } else {
+                    console.log("tempTotal: " + tempTotal);
+                    console.log("count: " + count);
+                    // only add an average if there are values in the time interval
+                    if (count > 0) {
+                        const nextObs = this.buildAverageObservation(
+                            nextAvg,
+                            tempTotal / count,
+                            mr.metricId,
+                        );
+                        console.log(JSON.stringify(nextObs));
+                        avgMinuteObservations.push(nextObs);
+                    }
+                    nextAvg += timeInterval;
+                    tempTotal = 0;
+                    count = 0;
+                }
+            }
+            avgMinuteObservations.push(this.buildAverageObservation(
+                nextAvg,
+                tempTotal / count,
+                mr.metricId,
+            ));
+            nextAvg = startDate;
+            tempTotal = 0;
+            count = 0;
+        }
+
+        return avgMinuteObservations;
+    }
+
 }
