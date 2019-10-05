@@ -196,6 +196,7 @@ export async function data_get_z_x_y_page(req, res) {
             // get the type of average in the url. Types are: "min", "hour", "day"
             const avgType = decodeURIComponent(req.query.avg);
             const blob = builder.build(tile, page, QR, fromDate, avgType.toString());
+
             res.type("application/ld+json; charset=utf-8");
             res.send(blob);
         } catch (e) {
