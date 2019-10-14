@@ -198,6 +198,15 @@ export async function data_get_z_x_y_page(req, res) {
             const blob = builder.build(tile, page, QR, fromDate, avgType.toString());
 
             res.type("application/ld+json; charset=utf-8");
+            const today = new Date();
+            today.setUTCHours(0, 0, 0, 0);
+            let cacheAge: string;
+            if (page.getTime() === today.getTime()) {
+                cacheAge = "max-age=0";
+            } else {
+                cacheAge = "public, max-age=84600";
+            }
+            res.header("Cache-control", cacheAge);
             res.send(blob);
         } catch (e) {
             res.status(400).send("jsonld convert error : " + e);

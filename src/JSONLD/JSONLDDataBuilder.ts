@@ -133,22 +133,32 @@ export default class JSONLDDataBuilder {
         time: (number | string),
         value: (number | string),
         metricId: string,
+        sensors: Set<string | number>,
     ) {
         const date = new Date(time);
+        const sensorArr = this.convertSensors(sensors);
         return {
             "@id": JSONLDConfig.baseURL + metricId + "/" + time,
             "@type": "sosa:Observation",
             "hasSimpleResult": value,
             "resultTime": date.toISOString(),
             "observedProperty": JSONLDConfig.baseURL + metricId,
+            "madeBySensor": sensorArr,
             "hasFeatureOfInterest": JSONLDConfig.baseURL + JSONLDConfig.FeatureOfInterest,
         };
     }
 
-    // same as buildObservations, but builds observations averaged over 5 minutes
+    private convertSensors(sensors: Set<string | number>): string[] {
+        const sensorArr: string[] = [];
+        for (const sensorId of sensors) {
+            sensorArr.push(JSONLDConfig.baseURL + sensorId);
+        }
+        return sensorArr;
+    }
+
+    // same as buildObservations, but builds observations averaged over a certain time interval
     // assumptions:
     // - all observations are in the same tile
-    // TODO: mention sensors?
     private buildAverageObservations(results: IQueryResults, startDate: number, avgType: string) {
         const avgMinuteObservations = [];
         // startDate + 5 minutes
@@ -157,21 +167,24 @@ export default class JSONLDDataBuilder {
 
         switch (avgType) {
             case "min":
-                timeInterval = 300000;
+                timeInterval = JSONLDConfig.minuteInterval;
                 break;
             case "hour":
-                timeInterval = 3600000;
+                timeInterval = JSONLDConfig.hourInterval;
                 break;
             case "day":
-                timeInterval = 86400000;
+                timeInterval = JSONLDConfig.dayInterval;
         }
-        // total of observation values of 5 minutes
+        nextAvg += timeInterval;
+        // total of observation values between a time interval
         let tempTotal: number = 0;
-        // total count of observations of 5 minutes
+        // total count of observations between a time interval
         let count: number = 0;
+        const tempSensors = new Set<string | number>();
 
         const colNrTime: number = results.columns.indexOf(AirQualityServerConfig.timeColumnName);
         const colNrValue: number = results.columns.indexOf(AirQualityServerConfig.valueColumnName);
+        const colNrSensorId: number = results.columns.indexOf(AirQualityServerConfig.sourceIdColumnName);
 
         for (const mr of results.metricResults) {
             // some metrics have no values
@@ -182,6 +195,7 @@ export default class JSONLDDataBuilder {
                 if (v[colNrTime] <= nextAvg) {
                     tempTotal = tempTotal + Number(v[colNrValue]);
                     count++;
+                    tempSensors.add(v[colNrSensorId]);
                 } else {
                     console.log("tempTotal: " + tempTotal);
                     console.log("count: " + count);
@@ -191,19 +205,21 @@ export default class JSONLDDataBuilder {
                             nextAvg,
                             tempTotal / count,
                             mr.metricId,
+                            tempSensors,
                         );
-                        console.log(JSON.stringify(nextObs));
                         avgMinuteObservations.push(nextObs);
                     }
                     nextAvg += timeInterval;
                     tempTotal = 0;
                     count = 0;
+                    tempSensors.clear();
                 }
             }
             avgMinuteObservations.push(this.buildAverageObservation(
                 nextAvg,
                 tempTotal / count,
                 mr.metricId,
+                tempSensors,
             ));
             nextAvg = startDate;
             tempTotal = 0;
