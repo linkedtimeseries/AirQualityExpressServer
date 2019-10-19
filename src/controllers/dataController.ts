@@ -146,6 +146,7 @@ export async function data_get_z_x_y_page(req, res) {
         try {
             geoHashUtils = new GeoHashUtils(tile);
             gHashes = geoHashUtils.getGeoHashes();
+            console.log("geoHashes: " + gHashes);
         } catch (e) {
             res.status(400).send("geoHash error : " + e);
             return;
@@ -177,7 +178,8 @@ export async function data_get_z_x_y_page(req, res) {
             const DR = await getObeliskDataRetrievalOperations(AirQualityServerConfig.scopeId);
             const qRes: Array<Promise<IObeliskSpatialQueryCodeAndResults>> = new Array();
             for (let i = 0; i < metrics.length; i++) {
-                qRes[i] = DR.getEvents(metrics[i], gHashes, fromDate, toDate);
+                const requestUrl = DR.buildGeoRelUrl(metrics[i], req.query.geometry);
+                qRes[i] = DR.getEvents(metrics[i], gHashes, requestUrl, fromDate, toDate);
             }
             QR = await Promise.all(qRes).then((data) => {
                 return processEvents(data, geoHashUtils, metrics);
