@@ -3,6 +3,7 @@
 //  step 2 - add the DctermsInfo
 
 import AirQualityServerConfig from "../AirQualityServerConfig";
+import IPolygon from "../utils/IPolygon";
 import ITile from "../utils/ITile";
 import JSONLDConfig from "./JSONLDConfig";
 
@@ -13,12 +14,22 @@ export default class JSONLDDocumentBuilder {
         this.airQualityServerConfig = new AirQualityServerConfig();
     }
 
-    public build(tile: ITile, page: Date): object {
+    public buildTile(tile: ITile, page: Date): object {
         return Object.assign({}, this.buildTilesInfo(tile, page), this.buildDctermsInfo());
     }
 
-    private buildURI(tile: ITile, page: Date) {
+    // TODO: set real polygon specification
+    public buildPolygon(polygon: IPolygon, page: Date): object {
+        return Object.assign( {}, this.buildPolygonInfo(polygon, page), this.buildDctermsInfo());
+    }
+
+    private buildTileURI(tile: ITile, page: Date) {
         return `${JSONLDConfig.openObeliskAddress}/data/${tile.zoom}/${tile.x}/${tile.y}?page=${page.toISOString()}`;
+    }
+
+    private buildPolygonURI(polygon: IPolygon, page: Date) {
+        return `${JSONLDConfig.openObeliskAddress}/data
+        ?geometry=${polygon.coords.join(";")}&page=${page.toISOString()}`;
     }
 
     private buildTilesInfo(tile: ITile, page: Date): object {
@@ -26,18 +37,39 @@ export default class JSONLDDocumentBuilder {
         const nextPage = new Date(page.getTime() + AirQualityServerConfig.dateTimeFrame);
 
         const result = {
-            "@id": this.buildURI(tile, page),
+            "@id": this.buildTileURI(tile, page),
             "tiles:zoom": tile.zoom,
             "tiles:longitudeTile": tile.x,
             "tiles:latitudeTile": tile.y,
             "startDate": page.toISOString(),
             "endDate": nextPage.toISOString(),
-            "previous": this.buildURI(tile, previousPage),
+            "previous": this.buildTileURI(tile, previousPage),
             "next": undefined,
         };
 
         if (nextPage < new Date()) {
-            result.next = this.buildURI(tile, nextPage);
+            result.next = this.buildTileURI(tile, nextPage);
+        }
+
+        return result;
+    }
+
+    private buildPolygonInfo(polygon: IPolygon, page: Date): object {
+        const previousPage = new Date(page.getTime() - AirQualityServerConfig.dateTimeFrame);
+        const nextPage = new Date(page.getTime() + AirQualityServerConfig.dateTimeFrame);
+
+        const result = {
+            "@id": this.buildPolygonURI(polygon, page),
+            "tiles:zoom": 14,
+            "geometry:coords": polygon.coords.join(";"),
+            "startDate": page.toISOString(),
+            "endDate": nextPage.toISOString(),
+            "previous": this.buildPolygonURI(polygon, previousPage),
+            "next": undefined,
+        };
+
+        if (nextPage < new Date()) {
+            result.next = this.buildPolygonURI(polygon, nextPage);
         }
 
         return result;

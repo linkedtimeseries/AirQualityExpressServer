@@ -12,6 +12,7 @@ import ObeliskDataRetrievalOperations from "../ObeliskQuery/ODataRetrievalOperat
 import ObeliskQueryMetadata from "../ObeliskQuery/OQMetadata";
 import ObeliskClientAuthentication from "../utils/Authentication";
 import GeoHashUtils from "../utils/GeoHashUtils";
+import IPolygon from "../utils/IPolygon";
 import ITile from "../utils/ITile";
 
 const airQualityServerConfig = new AirQualityServerConfig();
@@ -39,9 +40,11 @@ async function getAuth(): Promise<ObeliskClientAuthentication> {
 // Make ObeliskDataRetrievalOperations object available.
 // If the object is not available yet, create it.
 let obeliskDataRetrievalOperations: ObeliskDataRetrievalOperations = null;
+
 async function startObeliskDataRetrievalOperations(scopeId: string): Promise<void> {
     obeliskDataRetrievalOperations = new ObeliskDataRetrievalOperations(scopeId, await getAuth(), true);
 }
+
 async function getObeliskDataRetrievalOperations(scopeId: string): Promise<ObeliskDataRetrievalOperations> {
     if (!obeliskDataRetrievalOperations) {
         await startObeliskDataRetrievalOperations(scopeId);
@@ -52,6 +55,7 @@ async function getObeliskDataRetrievalOperations(scopeId: string): Promise<Obeli
 // Make metricIds available.
 // If no values available get metrics from Obelisk via ObeliskQueryMetadata.
 const metricIds: string[] = new Array();
+
 async function startGetMetricIds(scopeId: string): Promise<void> {
     const metadata: IObeliskMetadataMetricsQueryCodeAndResults = await (
         new ObeliskQueryMetadata(AirQualityServerConfig.scopeId, await getAuth(), true)
@@ -96,6 +100,100 @@ function processEvents(data: IObeliskSpatialQueryCodeAndResults[], geoHashUtils:
     return queryResults;
 }
 
+function processPolygon(data: IObeliskSpatialQueryCodeAndResults[], metrics): IQueryResults {
+    const queryResults = new QueryResults();
+    let id: number = 0;
+    if (data.length === 0) {
+        return null;
+    }
+    for (const d of data) {
+        if ((d.responseCode === 200) && (d.results != null)) {
+            if (queryResults.columns.length === 0) {
+                queryResults.columns = d.results.columns;
+            }
+            const metricResults: IMetricResults = new MetricResults(metrics[id]);
+            id++;
+            for (const r of d.results.values) {
+                metricResults.addValues(r);
+            }
+            queryResults.addMetricResults(metricResults);
+        }
+    }
+    return queryResults;
+}
+
+function checkDate(req, res, page: Date, redirectBaseUrl: string) {
+    // Re-direct to now time if no date is provided
+    if (page.toString() === "Invalid Date") {
+        console.log("invalid date");
+        const today = new Date();
+        today.setUTCHours(0, 0, 0, 0);
+        res.location(redirectBaseUrl + "page=" + today.toISOString());
+        res.status(302).send();
+        return;
+    }
+
+    // Re-direct to today's date if necessary
+    if (page.getUTCHours() !== 0 || page.getUTCMinutes() !== 0 || page.getUTCSeconds() !== 0
+        || page.getUTCMilliseconds() !== 0) {
+        console.log("invalid format");
+        page.setUTCHours(0, 0, 0, 0);
+        res.location(redirectBaseUrl + "page=" + page.toISOString());
+        res.status(302).send();
+        return;
+    }
+}
+
+async function getMetrics(req, res) {
+    let metrics: string[];
+    // get metrics from request
+    try {
+        if (req.query.metrics) {
+            metrics = req.query.metrics.split(",");
+            console.log("metrics:", metrics);
+        } else { // option : if no metricids are given, take all from metaquery
+            metrics = await getMetricIds(AirQualityServerConfig.scopeId);
+            console.log(metrics);
+        }
+        return metrics;
+    } catch (e) {
+        res.status(400).send("metrics error : " + e);
+        return;
+    }
+}
+
+function sendJSONResponse(req, res, coveredArea, page, QR, fromDate, geometry: boolean) {
+    // convert to jsonld
+    try {
+        const builder = new JSONLDBuilder();
+        // get the type of average in the url. Types are: "min", "hour", "day"
+        const avgType = decodeURIComponent(req.query.avg);
+        let blob;
+        if (geometry) {
+            const coordStringArray: string[] = coveredArea.split(";");
+            const polygon: IPolygon = {coords: coordStringArray, zoom: 14};
+            blob = builder.buildPolygon(polygon, page, QR, fromDate, avgType.toString());
+        } else {
+            blob = builder.buildTile(coveredArea, page, QR, fromDate, avgType.toString());
+        }
+
+        res.type("application/ld+json; charset=utf-8");
+        const today = new Date();
+        today.setUTCHours(0, 0, 0, 0);
+        let cacheAge: string;
+        if (page.getTime() === today.getTime()) {
+            cacheAge = "max-age=0";
+        } else {
+            cacheAge = "public, max-age=84600";
+        }
+        res.header("Cache-control", cacheAge);
+        res.send(blob);
+    } catch (e) {
+        res.status(400).send("jsonld convert error : " + e);
+        return;
+    }
+}
+
 // Process the get /zoom/x/y/page request
 // step 1 - redirect the client to the proper document if needed
 // step 2 - convert tile info to geohashes
@@ -115,23 +213,8 @@ export async function data_get_z_x_y_page(req, res) {
 
     try {
         page = new Date(decodeURIComponent(req.query.page));
-        // Re-direct to now time if no date is provided
-        if (page.toString() === "Invalid Date") {
-            const today = new Date();
-            today.setUTCHours(0, 0, 0, 0);
-            res.location("/data/14/" + req.params.tile_x + "/" + req.params.tile_y + "?page=" + today.toISOString());
-            res.status(302).send();
-            return;
-        }
-
-        // Re-direct to today's date if necessary
-        if (page.getUTCHours() !== 0 || page.getUTCMinutes() !== 0 || page.getUTCSeconds() !== 0
-            || page.getUTCMilliseconds() !== 0) {
-            page.setUTCHours(0, 0, 0, 0);
-            res.location("/data/14/" + req.params.tile_x + "/" + req.params.tile_y + "?page=" + page.toISOString());
-            res.status(302).send();
-            return;
-        }
+        const redirectUrl = "/data/14/" + req.params.tile_x + "/" + req.params.tile_y + "?";
+        checkDate(req, res, page, redirectUrl);
         // convert tile to geoHashes
         const tile: ITile = {
             x: Number(req.params.tile_x),
@@ -151,19 +234,73 @@ export async function data_get_z_x_y_page(req, res) {
             res.status(400).send("geoHash error : " + e);
             return;
         }
-        // get metrics from request
+        metrics = await getMetrics(req, res);
+        // date is always UTC
+        // get date from url request
         try {
-            if (req.query.metrics) {
-                metrics = req.query.metrics.split(",");
-                console.log("metrics:", metrics);
-            } else { // option : if no metricids are given, take all from metaquery
-                metrics = await getMetricIds(AirQualityServerConfig.scopeId);
-                console.log(metrics);
-            }
+            fromDate = page.getTime();
+            toDate = page.getTime() + AirQualityServerConfig.dateTimeFrame;
         } catch (e) {
-            res.status(400).send("metrics error : " + e);
+            res.status(400).send("date error : " + e);
             return;
         }
+        // query obelisk
+        try {
+            const DR = await getObeliskDataRetrievalOperations(AirQualityServerConfig.scopeId);
+            const qRes: Array<Promise<IObeliskSpatialQueryCodeAndResults>> = new Array();
+            for (let i = 0; i < metrics.length; i++) {
+                const requestUrl = DR.buildGeoHashUrl(metrics[i], gHashes);
+                qRes[i] = DR.getEvents(metrics[i], requestUrl, fromDate, toDate);
+            }
+            QR = await Promise.all(qRes).then((data) => {
+                return processEvents(data, geoHashUtils, metrics);
+            });
+            if (QR.isEmpty()) {
+                res.status(400).send("query error : no results");
+                return;
+            }
+        } catch (e) {
+            res.status(400).send("query error : " + e);
+            return;
+        }
+        sendJSONResponse(req, res, tile, page, QR, fromDate, false);
+
+    } catch (error) {
+        console.log(error);
+        res.status(400).send(error);
+    }
+}
+
+export async function data_get_polygon_page(req, res) {
+    let metrics: string[];
+    let page: Date;
+    let fromDate: number;
+    let toDate: number;
+    let QR: IQueryResults;
+    try {
+        console.log("polygon request");
+        page = new Date(decodeURIComponent(req.query.page));
+        const redirectBaseUrl = `/data/14/geometry?geometry=${req.query.geometry}&`;
+        // Re-direct to now time if no date is provided
+        if (page.toString() === "Invalid Date") {
+            console.log("invalid date");
+            const today = new Date();
+            today.setUTCHours(0, 0, 0, 0);
+            res.location(redirectBaseUrl + "page=" + today.toISOString());
+            res.status(302).send();
+            return;
+        }
+
+        // Re-direct to today's date if necessary
+        if (page.getUTCHours() !== 0 || page.getUTCMinutes() !== 0 || page.getUTCSeconds() !== 0
+            || page.getUTCMilliseconds() !== 0) {
+            console.log("invalid format");
+            page.setUTCHours(0, 0, 0, 0);
+            res.location(redirectBaseUrl + "page=" + page.toISOString());
+            res.status(302).send();
+            return;
+        }
+        metrics = await getMetrics(req, res);
         // date is always UTC
         // get date from url request
         try {
@@ -179,10 +316,10 @@ export async function data_get_z_x_y_page(req, res) {
             const qRes: Array<Promise<IObeliskSpatialQueryCodeAndResults>> = new Array();
             for (let i = 0; i < metrics.length; i++) {
                 const requestUrl = DR.buildGeoRelUrl(metrics[i], req.query.geometry);
-                qRes[i] = DR.getEvents(metrics[i], gHashes, requestUrl, fromDate, toDate);
+                qRes[i] = DR.getEvents(metrics[i], requestUrl, fromDate, toDate);
             }
             QR = await Promise.all(qRes).then((data) => {
-                return processEvents(data, geoHashUtils, metrics);
+                return processPolygon(data, metrics);
             });
             if (QR.isEmpty()) {
                 res.status(400).send("query error : no results");
@@ -194,11 +331,15 @@ export async function data_get_z_x_y_page(req, res) {
         }
         // convert to jsonld
         try {
+            console.log("json fase");
             const builder = new JSONLDBuilder();
             // get the type of average in the url. Types are: "min", "hour", "day"
             const avgType = decodeURIComponent(req.query.avg);
-            const blob = builder.build(tile, page, QR, fromDate, avgType.toString());
-
+            let blob;
+            const coordStringArray: string[] = req.query.geometry.split(";");
+            const polygon: IPolygon = {coords: coordStringArray, zoom: 14};
+            blob = builder.buildPolygon(polygon, page, QR, fromDate, avgType.toString());
+            console.log(blob);
             res.type("application/ld+json; charset=utf-8");
             const today = new Date();
             today.setUTCHours(0, 0, 0, 0);

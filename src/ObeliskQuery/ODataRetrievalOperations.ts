@@ -33,7 +33,6 @@ export default class ObeliskDataRetrievalOperations {
 
     public async getEvents(
         metricId: string,
-        geoHash: string[],
         url: string,
         fromTimeMs?: number,
         toTimeMs?: number,
@@ -49,7 +48,6 @@ export default class ObeliskDataRetrievalOperations {
         if (limit) {
             url += "&limit=" + limit.toString();
         }
-
         await fetch(url, { headers: this.auth.resourceCallAuthorizationHeader() })
             .then((res) => {
                 resultsStatus = res.status;
