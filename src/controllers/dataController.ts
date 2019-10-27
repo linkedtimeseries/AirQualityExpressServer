@@ -130,7 +130,7 @@ function checkDate(req, res, page: Date, redirectBaseUrl: string) {
         today.setUTCHours(0, 0, 0, 0);
         res.location(redirectBaseUrl + "page=" + today.toISOString());
         res.status(302).send();
-        return;
+        return false;
     }
 
     // Re-direct to today's date if necessary
@@ -140,8 +140,9 @@ function checkDate(req, res, page: Date, redirectBaseUrl: string) {
         page.setUTCHours(0, 0, 0, 0);
         res.location(redirectBaseUrl + "page=" + page.toISOString());
         res.status(302).send();
-        return;
+        return false;
     }
+    return true;
 }
 
 async function getMetrics(req, res) {
@@ -214,7 +215,25 @@ export async function data_get_z_x_y_page(req, res) {
     try {
         page = new Date(decodeURIComponent(req.query.page));
         const redirectUrl = "/data/14/" + req.params.tile_x + "/" + req.params.tile_y + "?";
-        checkDate(req, res, page, redirectUrl);
+        // Re-direct to now time if no date is provided
+        if (page.toString() === "Invalid Date") {
+            console.log("invalid date");
+            const today = new Date();
+            today.setUTCHours(0, 0, 0, 0);
+            res.location(redirectUrl + "page=" + today.toISOString());
+            res.status(302).send();
+            return;
+        }
+
+        // Re-direct to today's date if necessary
+        if (page.getUTCHours() !== 0 || page.getUTCMinutes() !== 0 || page.getUTCSeconds() !== 0
+            || page.getUTCMilliseconds() !== 0) {
+            console.log("invalid format");
+            page.setUTCHours(0, 0, 0, 0);
+            res.location(redirectUrl + "page=" + page.toISOString());
+            res.status(302).send();
+            return;
+        }
         // convert tile to geoHashes
         const tile: ITile = {
             x: Number(req.params.tile_x),
@@ -281,23 +300,7 @@ export async function data_get_polygon_page(req, res) {
         console.log("polygon request");
         page = new Date(decodeURIComponent(req.query.page));
         const redirectBaseUrl = `/data/14/geometry?geometry=${req.query.geometry}&`;
-        // Re-direct to now time if no date is provided
-        if (page.toString() === "Invalid Date") {
-            console.log("invalid date");
-            const today = new Date();
-            today.setUTCHours(0, 0, 0, 0);
-            res.location(redirectBaseUrl + "page=" + today.toISOString());
-            res.status(302).send();
-            return;
-        }
-
-        // Re-direct to today's date if necessary
-        if (page.getUTCHours() !== 0 || page.getUTCMinutes() !== 0 || page.getUTCSeconds() !== 0
-            || page.getUTCMilliseconds() !== 0) {
-            console.log("invalid format");
-            page.setUTCHours(0, 0, 0, 0);
-            res.location(redirectBaseUrl + "page=" + page.toISOString());
-            res.status(302).send();
+        if (! checkDate(req, res, page, redirectBaseUrl)) {
             return;
         }
         metrics = await getMetrics(req, res);
