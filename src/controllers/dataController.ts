@@ -168,14 +168,14 @@ function sendJSONResponse(req, res, coveredArea, page, QR, fromDate, geometry: b
     try {
         const builder = new JSONLDBuilder();
         // get the type of average in the url. Types are: "min", "hour", "day"
-        const avgType = decodeURIComponent(req.query.avg);
+        const aggregateInterval = decodeURIComponent(req.query.median);
         let blob;
         if (geometry) {
             const coordStringArray: string[] = coveredArea.split(";");
             const polygon: IPolygon = {coords: coordStringArray, zoom: 14};
-            blob = builder.buildPolygon(polygon, page, QR, fromDate, avgType.toString());
+            blob = builder.buildPolygon(polygon, page, QR, fromDate, aggregateInterval.toString());
         } else {
-            blob = builder.buildTile(coveredArea, page, QR, fromDate, avgType.toString());
+            blob = builder.buildTile(coveredArea, page, QR, fromDate, aggregateInterval.toString());
         }
 
         res.type("application/ld+json; charset=utf-8");
@@ -217,7 +217,6 @@ export async function data_get_z_x_y_page(req, res) {
         const redirectUrl = "/data/14/" + req.params.tile_x + "/" + req.params.tile_y + "?";
         // Re-direct to now time if no date is provided
         if (page.toString() === "Invalid Date") {
-            console.log("invalid date");
             const today = new Date();
             today.setUTCHours(0, 0, 0, 0);
             res.location(redirectUrl + "page=" + today.toISOString());
@@ -228,7 +227,6 @@ export async function data_get_z_x_y_page(req, res) {
         // Re-direct to today's date if necessary
         if (page.getUTCHours() !== 0 || page.getUTCMinutes() !== 0 || page.getUTCSeconds() !== 0
             || page.getUTCMilliseconds() !== 0) {
-            console.log("invalid format");
             page.setUTCHours(0, 0, 0, 0);
             res.location(redirectUrl + "page=" + page.toISOString());
             res.status(302).send();
@@ -248,7 +246,6 @@ export async function data_get_z_x_y_page(req, res) {
         try {
             geoHashUtils = new GeoHashUtils(tile);
             gHashes = geoHashUtils.getGeoHashes();
-            console.log("geoHashes: " + gHashes);
         } catch (e) {
             res.status(400).send("geoHash error : " + e);
             return;
@@ -334,14 +331,13 @@ export async function data_get_polygon_page(req, res) {
         }
         // convert to jsonld
         try {
-            console.log("json fase");
             const builder = new JSONLDBuilder();
             // get the type of average in the url. Types are: "min", "hour", "day"
-            const avgType = decodeURIComponent(req.query.avg);
+            const aggregateInterval = decodeURIComponent(req.query.median);
             let blob;
             const coordStringArray: string[] = req.query.geometry.split(";");
             const polygon: IPolygon = {coords: coordStringArray, zoom: 14};
-            blob = builder.buildPolygon(polygon, page, QR, fromDate, avgType.toString());
+            blob = builder.buildPolygon(polygon, page, QR, fromDate, aggregateInterval.toString());
             console.log(blob);
             res.type("application/ld+json; charset=utf-8");
             const today = new Date();
@@ -350,7 +346,7 @@ export async function data_get_polygon_page(req, res) {
             if (page.getTime() === today.getTime()) {
                 cacheAge = "max-age=0";
             } else {
-                cacheAge = "public, max-age=84600";
+                cacheAge = "public, max-age=31536000";
             }
             res.header("Cache-control", cacheAge);
             res.send(blob);
