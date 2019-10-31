@@ -29,9 +29,8 @@ router.get("/", async (req, res) => {
         switch (testQuery) {
             case "DR": {
                 const DR = new ObeliskDataRetrievalOperations(AirQualityServerConfig.scopeId, auth, true);
-                const requestUrl = DR.buildGeoHashUrl("airquality.no2", ["u155kr", "u155ks"]);
-                const results = await DR.getEvents("airquality.no2",
-                    requestUrl, 1514799902820, 1514799909820);
+                const results = await DR.getEvents("airquality.no2", ["u155kr", "u155ks"],
+                    1514799902820, 1514799909820);
                 // let results = await DR.GetEvents('airquality.no2', ['u155kr', 'u155ks']);
                 // let results = await DR.GetEventsLatest('airquality.no2', ['u155kr', 'u155ks']);
                 // let results = await DR.GetStats('airquality.no2', ['u155kr', 'u155ks']);

@@ -13,33 +13,21 @@ export default class ObeliskDataRetrievalOperations {
     private static readonly address: string = AirQualityServerConfig.obeliskAddress;
     constructor(private scopeId: string, private auth: ObeliskClientAuthentication, private log: boolean = true) { }
 
-    public buildGeoHashUrl(metricId: string, geoHash: string[]): string {
-        return ObeliskDataRetrievalOperations.address
-            + "/api/v1/scopes/" + this.scopeId
-            + "/query/" + metricId + "/events"
-            + "?"
-            + "area=" + geoHash.join(",")
-            + "&spatialIndex=geohash";
-    }
-
-    public buildGeoRelUrl(metricId: string, polygon: string): string {
-        return ObeliskDataRetrievalOperations.address
-            + "/api/v1/scopes/" + this.scopeId
-            + "/query/" + metricId + "/events"
-            + "?"
-            + "georel=coveredBy&geometry=polygon"
-            + "&coords=" + polygon;
-    }
-
     public async getEvents(
         metricId: string,
-        url: string,
+        geoHash: string[],
         fromTimeMs?: number,
         toTimeMs?: number,
         limit?: number,
     ): Promise<IObeliskSpatialQueryCodeAndResults> {
         let resultsStatus: number;
         let results: any;
+        let url = ObeliskDataRetrievalOperations.address
+            + "/api/v1/scopes/" + this.scopeId
+            + "/query/" + metricId + "/events"
+            + "?"
+            + "area=" + geoHash.join(",")
+            + "&spatialIndex=geohash";
 
         if (fromTimeMs && toTimeMs) {
             url += "&" + querystring.stringify({ from: fromTimeMs.toString(), to: toTimeMs.toString() });
@@ -48,6 +36,7 @@ export default class ObeliskDataRetrievalOperations {
         if (limit) {
             url += "&limit=" + limit.toString();
         }
+
         await fetch(url, { headers: this.auth.resourceCallAuthorizationHeader() })
             .then((res) => {
                 resultsStatus = res.status;

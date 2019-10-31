@@ -11,12 +11,13 @@ import JSONLDDataBuilder from "./JSONLDDataBuilder";
 import JSONLDDocumentBuilder from "./JSONLDDocumentBuilder";
 
 export default class JSONLDBuilder {
-    public buildTile(tile: ITile, page: Date, results: IQueryResults, fromDate: number, agrInterval: string): object {
+    public buildTile(tile: ITile, page: Date, results: IQueryResults, fromDate: number,
+                     aggrMethod?: string, aggrPeriod?: string): object {
         const dataBuilder = new JSONLDDataBuilder();
         const documentBuilder = new JSONLDDocumentBuilder();
-        const blob = documentBuilder.buildTile(tile , page);
+        const blob = documentBuilder.buildTile(tile, page);
         blob["@context"] = JSONLDConfig.context;
-        blob["@graph"] = dataBuilder.build(results, fromDate, agrInterval);
+        blob["@graph"] = dataBuilder.build(results, fromDate, aggrMethod, aggrPeriod);
         return blob;
     }
 
