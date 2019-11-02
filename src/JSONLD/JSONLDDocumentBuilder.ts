@@ -14,8 +14,8 @@ export default class JSONLDDocumentBuilder {
         this.airQualityServerConfig = new AirQualityServerConfig();
     }
 
-    public buildTile(tile: ITile, page: Date): object {
-        return Object.assign({}, this.buildTilesInfo(tile, page), this.buildDctermsInfo());
+    public buildTile(tile: ITile, page: Date, aggrMethod?: string, aggrPeriod?: string): object {
+        return Object.assign({}, this.buildTilesInfo(tile, page, aggrMethod, aggrPeriod), this.buildDctermsInfo());
     }
 
     // TODO: set real polygon specification
@@ -23,8 +23,15 @@ export default class JSONLDDocumentBuilder {
         return Object.assign( {}, this.buildPolygonInfo(polygon, page), this.buildDctermsInfo());
     }
 
-    private buildTileURI(tile: ITile, page: Date) {
-        return `${JSONLDConfig.openObeliskAddress}/data/${tile.zoom}/${tile.x}/${tile.y}?page=${page.toISOString()}`;
+    private buildTileURI(tile: ITile, page: Date, aggrMethod?: string, aggrPeriod?: string) {
+        let url = `${JSONLDConfig.openObeliskAddress}/data/${tile.zoom}/${tile.x}/${tile.y}?page=${page.toISOString()}`;
+        if (aggrMethod) {
+            url += `&aggrMethod=${aggrMethod}`;
+        }
+        if (aggrPeriod) {
+            url += `&aggrPeriod=${aggrPeriod}`;
+        }
+        return url;
     }
 
     private buildPolygonURI(polygon: IPolygon, page: Date) {
@@ -32,23 +39,23 @@ export default class JSONLDDocumentBuilder {
         ?geometry=${polygon.coords.join(";")}&page=${page.toISOString()}`;
     }
 
-    private buildTilesInfo(tile: ITile, page: Date): object {
+    private buildTilesInfo(tile: ITile, page: Date, aggrMethod?: string, aggrPeriod?: string): object {
         const previousPage = new Date(page.getTime() - AirQualityServerConfig.dateTimeFrame);
         const nextPage = new Date(page.getTime() + AirQualityServerConfig.dateTimeFrame);
 
         const result = {
-            "@id": this.buildTileURI(tile, page),
+            "@id": this.buildTileURI(tile, page, aggrMethod, aggrPeriod),
             "tiles:zoom": tile.zoom,
             "tiles:longitudeTile": tile.x,
             "tiles:latitudeTile": tile.y,
             "startDate": page.toISOString(),
             "endDate": nextPage.toISOString(),
-            "previous": this.buildTileURI(tile, previousPage),
+            "previous": this.buildTileURI(tile, previousPage, aggrMethod, aggrPeriod),
             "next": undefined,
         };
 
         if (nextPage < new Date()) {
-            result.next = this.buildTileURI(tile, nextPage);
+            result.next = this.buildTileURI(tile, nextPage, aggrMethod, aggrPeriod);
         }
 
         return result;
@@ -105,7 +112,8 @@ export default class JSONLDDocumentBuilder {
                 "dcterms:rights": this.airQualityServerConfig.dcterms_rights,
                 "hydra:search": {
                     "@type": "hydraIriTemplate",
-                    "hydra:template": `${JSONLDConfig.openObeliskAddress}/data/14/x/y{?page}`,
+                    "hydra:template":
+                        `${JSONLDConfig.openObeliskAddress}/data/14/{x}/{y}{?page,aggrMethod,aggrPeriod}`,
                     "hydra:variableRepresentation": "hydra:BasicRepresentation",
                     "hydra:mapping": this.buildHydraMapping(),
                 },

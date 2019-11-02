@@ -58,7 +58,8 @@ export default abstract class JSONLDConfig {
     };
     public static readonly FeatureOfInterest: string = "AirQuality";
     public static readonly baseURL: string = "http://example.org/data/";
-    public static readonly openObeliskAddress = "https://lodi.ilabt.imec.be/air";
+    // TODO: replace with actual address
+    public static readonly openObeliskAddress = "http://localhost:5000";
     // intervals to calculate averages
     public static readonly minuteInterval: number = 300000;
     public static readonly hourInterval: number = 3600000;

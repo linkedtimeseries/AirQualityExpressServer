@@ -1,4 +1,5 @@
-﻿import AirQualityServerConfig from "../AirQualityServerConfig";
+﻿import {type} from "os";
+import AirQualityServerConfig from "../AirQualityServerConfig";
 import IMetricResults from "../API/IMetricResults";
 import IQueryResults from "../API/IQueryResults";
 import MetricResults from "../API/MetricResults";
@@ -116,6 +117,20 @@ async function getMetrics(req, res) {
     }
 }
 
+function addAggrParams(aggrMethod, aggrPeriod, url) {
+    if (typeof aggrMethod !== "undefined" && typeof aggrPeriod === "undefined") {
+        aggrPeriod = "hour";
+    }
+    if (typeof aggrPeriod !== "undefined" && typeof aggrMethod === "undefined") {
+        aggrMethod = "median";
+    }
+    if (typeof aggrMethod !== "undefined" && typeof aggrPeriod !== "undefined") {
+        url += `&aggrMethod=${aggrMethod}`;
+        url += `&aggrPeriod=${aggrPeriod}`;
+    }
+    return url;
+}
+
 // Process the get /zoom/x/y/page request
 // step 1 - redirect the client to the proper document if needed
 // step 2 - convert tile info to geohashes
@@ -134,25 +149,40 @@ export async function data_get_z_x_y_page(req, res) {
     let QR: IQueryResults;
 
     try {
+        let redirectReq: boolean = false;
         page = new Date(decodeURIComponent(req.query.page));
-        const redirectUrl = "/data/14/" + req.params.tile_x + "/" + req.params.tile_y + "?";
+        const aggrMethod = decodeURIComponent(req.query.aggrMethod);
+        const aggrPeriod = decodeURIComponent(req.query.aggrPeriod);
+        let redirectUrl = "/data/14/" + req.params.tile_x + "/" + req.params.tile_y + "?";
         // Re-direct to now time if no date is provided
         if (page.toString() === "Invalid Date") {
+            redirectReq = true;
             const today = new Date();
             today.setUTCHours(0, 0, 0, 0);
-            res.location(redirectUrl + "page=" + today.toISOString());
+            redirectUrl += "page=" + today.toISOString();
+        } else if (page.getUTCHours() !== 0 || page.getUTCMinutes() !== 0 || page.getUTCSeconds() !== 0
+            || page.getUTCMilliseconds() !== 0) {
+            redirectReq = true;
+            page.setUTCHours(0, 0, 0, 0);
+            redirectUrl += "page=" + page.toISOString();
+        } else {
+            redirectUrl += page.toISOString();
+        }
+
+        if ((typeof aggrMethod !== "undefined" && typeof aggrPeriod === "undefined") ||
+            (typeof aggrPeriod !== "undefined" && typeof aggrMethod === "undefined") ) {
+            redirectReq = true;
+            redirectUrl = addAggrParams(aggrMethod, aggrPeriod, redirectUrl);
+        } else if (typeof aggrMethod !== "undefined" && typeof aggrPeriod !== "undefined") {
+            redirectUrl = addAggrParams(aggrMethod, aggrPeriod, redirectUrl);
+        }
+
+        if (redirectReq) {
+            res.location(redirectUrl);
             res.status(302).send();
             return;
         }
 
-        // Re-direct to today's date if necessary
-        if (page.getUTCHours() !== 0 || page.getUTCMinutes() !== 0 || page.getUTCSeconds() !== 0
-            || page.getUTCMilliseconds() !== 0) {
-            page.setUTCHours(0, 0, 0, 0);
-            res.location(redirectUrl + "page=" + page.toISOString());
-            res.status(302).send();
-            return;
-        }
         // convert tile to geoHashes
         const tile: ITile = {
             x: Number(req.params.tile_x),
@@ -202,12 +232,7 @@ export async function data_get_z_x_y_page(req, res) {
         // convert to jsonld
         try {
             const builder = new JSONLDBuilder();
-            // get the type of average in the url. Types are: "min", "hour", "day"
-            const aggrMethod = decodeURIComponent(req.query.aggrMethod);
-            const aggrPeriod = decodeURIComponent(req.query.aggrPeriod);
-            let blob;
-
-            blob = builder.buildTile(tile, page, QR, fromDate, aggrMethod.toString(), aggrPeriod.toString());
+            const blob = builder.buildTile(tile, page, QR, fromDate, aggrMethod.toString(), aggrPeriod.toString());
             res.type("application/ld+json; charset=utf-8");
             const today = new Date();
             today.setUTCHours(0, 0, 0, 0);
