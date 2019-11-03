@@ -4,7 +4,6 @@
 //  step 3 - add the actual data (sosa standard) (from JSONLDDataBuilder)
 
 import IQueryResults from "../API/IQueryResults";
-import IPolygon from "../utils/IPolygon";
 import ITile from "../utils/ITile";
 import JSONLDConfig from "./JSONLDConfig";
 import JSONLDDataBuilder from "./JSONLDDataBuilder";
@@ -18,20 +17,6 @@ export default class JSONLDBuilder {
         const blob = documentBuilder.buildTile(tile, page);
         blob["@context"] = JSONLDConfig.context;
         blob["@graph"] = dataBuilder.build(results, fromDate, aggrMethod, aggrPeriod);
-        return blob;
-    }
-
-    public buildPolygon(
-        polygon: IPolygon,
-        page: Date,
-        results: IQueryResults,
-        fromDate: number,
-        avgType: string): object {
-        const dataBuilder = new JSONLDDataBuilder();
-        const documentBuilder = new JSONLDDocumentBuilder();
-        const blob = documentBuilder.buildPolygon(polygon , page);
-        blob["@context"] = JSONLDConfig.context;
-        blob["@graph"] = dataBuilder.build(results, fromDate, avgType);
         return blob;
     }
 }

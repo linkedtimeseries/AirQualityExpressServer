@@ -3,7 +3,6 @@
 //  step 2 - add the DctermsInfo
 
 import AirQualityServerConfig from "../AirQualityServerConfig";
-import IPolygon from "../utils/IPolygon";
 import ITile from "../utils/ITile";
 import JSONLDConfig from "./JSONLDConfig";
 
@@ -18,11 +17,6 @@ export default class JSONLDDocumentBuilder {
         return Object.assign({}, this.buildTilesInfo(tile, page, aggrMethod, aggrPeriod), this.buildDctermsInfo());
     }
 
-    // TODO: set real polygon specification
-    public buildPolygon(polygon: IPolygon, page: Date): object {
-        return Object.assign( {}, this.buildPolygonInfo(polygon, page), this.buildDctermsInfo());
-    }
-
     private buildTileURI(tile: ITile, page: Date, aggrMethod?: string, aggrPeriod?: string) {
         let url = `${JSONLDConfig.openObeliskAddress}/data/${tile.zoom}/${tile.x}/${tile.y}?page=${page.toISOString()}`;
         if (aggrMethod) {
@@ -32,11 +26,6 @@ export default class JSONLDDocumentBuilder {
             url += `&aggrPeriod=${aggrPeriod}`;
         }
         return url;
-    }
-
-    private buildPolygonURI(polygon: IPolygon, page: Date) {
-        return `${JSONLDConfig.openObeliskAddress}/data
-        ?geometry=${polygon.coords.join(";")}&page=${page.toISOString()}`;
     }
 
     private buildTilesInfo(tile: ITile, page: Date, aggrMethod?: string, aggrPeriod?: string): object {
@@ -56,27 +45,6 @@ export default class JSONLDDocumentBuilder {
 
         if (nextPage < new Date()) {
             result.next = this.buildTileURI(tile, nextPage, aggrMethod, aggrPeriod);
-        }
-
-        return result;
-    }
-
-    private buildPolygonInfo(polygon: IPolygon, page: Date): object {
-        const previousPage = new Date(page.getTime() - AirQualityServerConfig.dateTimeFrame);
-        const nextPage = new Date(page.getTime() + AirQualityServerConfig.dateTimeFrame);
-
-        const result = {
-            "@id": this.buildPolygonURI(polygon, page),
-            "tiles:zoom": 14,
-            "geometry:coords": polygon.coords.join(";"),
-            "startDate": page.toISOString(),
-            "endDate": nextPage.toISOString(),
-            "previous": this.buildPolygonURI(polygon, previousPage),
-            "next": undefined,
-        };
-
-        if (nextPage < new Date()) {
-            result.next = this.buildPolygonURI(polygon, nextPage);
         }
 
         return result;
