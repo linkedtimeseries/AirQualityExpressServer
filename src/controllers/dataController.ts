@@ -1,5 +1,4 @@
-﻿import {type} from "os";
-import AirQualityServerConfig from "../AirQualityServerConfig";
+﻿import AirQualityServerConfig from "../AirQualityServerConfig";
 import IMetricResults from "../API/IMetricResults";
 import IQueryResults from "../API/IQueryResults";
 import MetricResults from "../API/MetricResults";
@@ -100,23 +99,6 @@ function processEvents(data: IObeliskSpatialQueryCodeAndResults[], geoHashUtils:
     return queryResults;
 }
 
-async function getMetrics(req, res) {
-    let metrics: string[];
-    // get metrics from request
-    try {
-        if (req.query.metrics) {
-            metrics = req.query.metrics.split(",");
-        } else { // option : if no metricids are given, take all from metaquery
-            metrics = await getMetricIds(AirQualityServerConfig.scopeId);
-            console.log(metrics);
-        }
-        return metrics;
-    } catch (e) {
-        res.status(400).send("metrics error : " + e);
-        return;
-    }
-}
-
 function addAggrParams(aggrMethod, aggrPeriod, url) {
     if (typeof aggrMethod !== "undefined" && typeof aggrPeriod === "undefined") {
         aggrPeriod = "hour";
@@ -153,21 +135,19 @@ export async function data_get_z_x_y_page(req, res) {
         page = new Date(decodeURIComponent(req.query.page));
         const aggrMethod = decodeURIComponent(req.query.aggrMethod);
         const aggrPeriod = decodeURIComponent(req.query.aggrPeriod);
-        let redirectUrl = "/data/14/" + req.params.tile_x + "/" + req.params.tile_y + "?";
+        let redirectUrl = "/data/14/" + req.params.tile_x + "/" + req.params.tile_y;
         // Re-direct to now time if no date is provided
         if (page.toString() === "Invalid Date") {
             redirectReq = true;
             const today = new Date();
             today.setUTCHours(0, 0, 0, 0);
-            redirectUrl += "page=" + today.toISOString();
+            page = today;
         } else if (page.getUTCHours() !== 0 || page.getUTCMinutes() !== 0 || page.getUTCSeconds() !== 0
             || page.getUTCMilliseconds() !== 0) {
             redirectReq = true;
             page.setUTCHours(0, 0, 0, 0);
-            redirectUrl += "page=" + page.toISOString();
-        } else {
-            redirectUrl += page.toISOString();
         }
+        redirectUrl += "?page=" + page.toISOString();
 
         if ((typeof aggrMethod !== "undefined" && typeof aggrPeriod === "undefined") ||
             (typeof aggrPeriod !== "undefined" && typeof aggrMethod === "undefined") ) {
@@ -201,7 +181,18 @@ export async function data_get_z_x_y_page(req, res) {
             res.status(400).send("geoHash error : " + e);
             return;
         }
-        metrics = await getMetrics(req, res);
+        // get metrics from request
+        try {
+            if (req.query.metrics) {
+                metrics = req.query.metrics.split(",");
+            } else { // option : if no metricids are given, take all from metaquery
+                metrics = await getMetricIds(AirQualityServerConfig.scopeId);
+                console.log(metrics);
+            }
+        } catch (e) {
+            res.status(400).send("metrics error : " + e);
+            return;
+        }
         // date is always UTC
         // get date from url request
         try {

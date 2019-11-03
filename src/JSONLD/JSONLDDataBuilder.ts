@@ -155,7 +155,7 @@ export default class JSONLDDataBuilder {
             "resultTime": date.toISOString(),
             "observedProperty": JSONLDConfig.baseURL + metricId,
             "madeBySensor": sensorArr,
-            "usedProcedure": JSONLDConfig.baseURL + "/id/" + usedProcedure,
+            "usedProcedure": JSONLDConfig.baseURL + "id/" + usedProcedure,
             "hasFeatureOfInterest": JSONLDConfig.baseURL + JSONLDConfig.FeatureOfInterest,
         };
     }
@@ -239,13 +239,9 @@ export default class JSONLDDataBuilder {
 
     private getMedian(medianResults, colNrValue: number): number {
         let median: number;
-        // console.log("lengte: " + medianResults.length);
         if (medianResults.length % 2) {
-            // console.log("median: " + Math.floor(medianResults.length / 2));
             median = Number(medianResults[Math.floor(medianResults.length / 2)][colNrValue]);
         } else {
-            // console.log("first: " + Math.floor(medianResults.length / 2));
-            // console.log("second: " + Math.ceil(medianResults.length / 2));
             median = Number(medianResults[medianResults.length / 2][colNrValue])
                 + Number(medianResults[(medianResults.length / 2) - 1][colNrValue]) / 2;
         }
