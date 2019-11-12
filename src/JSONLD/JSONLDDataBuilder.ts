@@ -152,7 +152,7 @@ export default class JSONLDDataBuilder {
             "@id": JSONLDConfig.baseURL + metricId + "/" + time,
             "@type": "sosa:Observation",
             "hasSimpleResult": value,
-            "resultTime": date.toISOString(),
+            "phenomenonTime": date.toISOString(),
             "observedProperty": JSONLDConfig.baseURL + metricId,
             "madeBySensor": sensorArr,
             "usedProcedure": JSONLDConfig.baseURL + "id/" + usedProcedure,

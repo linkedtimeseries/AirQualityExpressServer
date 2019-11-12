@@ -19,6 +19,14 @@ export default abstract class JSONLDConfig {
             "@id": "http://www.w3.org/ns/sosa/observedProperty",
             "@type": "@id",
         },
+        phenomenonTime: {
+            "@id": "http://www.w3.org/ns/sosa/phenomenonTime",
+            "@type": "@id",
+        },
+        usedProcedure: {
+            "@id": "http://www.w3.org/ns/sosa/usedProcedure",
+            "@type": "@id",
+        },
         madeBySensor: {
             "@id": "http://www.w3.org/ns/sosa/madeBySensor",
             "@type": "@id",
