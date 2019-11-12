@@ -67,6 +67,16 @@ export default class JSONLDDocumentBuilder {
                 "hydra:variable": "page",
                 "hydra:property": "dcterms:date",
                 "hydra:required": false,
+            }, {
+                "@type": "hydra:IriTemplateMapping",
+                "hydra:variable": "aggrMethod",
+                "hydra:property": "dcterms:accrualMethod",
+                "hydra:required": false,
+            }, {
+                "@type": "hydra:IriTemplateMapping",
+                "hydra:variable": "aggrPeriod",
+                "hydra:property": "dcterms:accrualPeriodicity",
+                "hydra:required": false,
             },
         ];
     }
