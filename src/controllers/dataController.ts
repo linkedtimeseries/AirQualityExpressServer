@@ -39,9 +39,11 @@ async function getAuth(): Promise<ObeliskClientAuthentication> {
 // Make ObeliskDataRetrievalOperations object available.
 // If the object is not available yet, create it.
 let obeliskDataRetrievalOperations: ObeliskDataRetrievalOperations = null;
+
 async function startObeliskDataRetrievalOperations(scopeId: string): Promise<void> {
     obeliskDataRetrievalOperations = new ObeliskDataRetrievalOperations(scopeId, await getAuth(), true);
 }
+
 async function getObeliskDataRetrievalOperations(scopeId: string): Promise<ObeliskDataRetrievalOperations> {
     if (!obeliskDataRetrievalOperations) {
         await startObeliskDataRetrievalOperations(scopeId);
@@ -52,6 +54,7 @@ async function getObeliskDataRetrievalOperations(scopeId: string): Promise<Obeli
 // Make metricIds available.
 // If no values available get metrics from Obelisk via ObeliskQueryMetadata.
 const metricIds: string[] = new Array();
+
 async function startGetMetricIds(scopeId: string): Promise<void> {
     const metadata: IObeliskMetadataMetricsQueryCodeAndResults = await (
         new ObeliskQueryMetadata(AirQualityServerConfig.scopeId, await getAuth(), true)
@@ -96,6 +99,20 @@ function processEvents(data: IObeliskSpatialQueryCodeAndResults[], geoHashUtils:
     return queryResults;
 }
 
+function addAggrParams(aggrMethod, aggrPeriod, url) {
+    if (typeof aggrMethod !== "undefined" && typeof aggrPeriod === "undefined") {
+        aggrPeriod = "hour";
+    }
+    if (typeof aggrPeriod !== "undefined" && typeof aggrMethod === "undefined") {
+        aggrMethod = "median";
+    }
+    if (typeof aggrMethod !== "undefined" && typeof aggrPeriod !== "undefined") {
+        url += `&aggrMethod=${aggrMethod}`;
+        url += `&aggrPeriod=${aggrPeriod}`;
+    }
+    return url;
+}
+
 // Process the get /zoom/x/y/page request
 // step 1 - redirect the client to the proper document if needed
 // step 2 - convert tile info to geohashes
@@ -114,24 +131,38 @@ export async function data_get_z_x_y_page(req, res) {
     let QR: IQueryResults;
 
     try {
+        let redirectReq: boolean = false;
         page = new Date(decodeURIComponent(req.query.page));
+        const aggrMethod = decodeURIComponent(req.query.aggrMethod);
+        const aggrPeriod = decodeURIComponent(req.query.aggrPeriod);
+        let redirectUrl = "/data/14/" + req.params.tile_x + "/" + req.params.tile_y;
         // Re-direct to now time if no date is provided
         if (page.toString() === "Invalid Date") {
+            redirectReq = true;
             const today = new Date();
             today.setUTCHours(0, 0, 0, 0);
-            res.location("/data/14/" + req.params.tile_x + "/" + req.params.tile_y + "?page=" + today.toISOString());
+            page = today;
+        } else if (page.getUTCHours() !== 0 || page.getUTCMinutes() !== 0 || page.getUTCSeconds() !== 0
+            || page.getUTCMilliseconds() !== 0) {
+            redirectReq = true;
+            page.setUTCHours(0, 0, 0, 0);
+        }
+        redirectUrl += "?page=" + page.toISOString();
+
+        if ((typeof aggrMethod !== "undefined" && typeof aggrPeriod === "undefined") ||
+            (typeof aggrPeriod !== "undefined" && typeof aggrMethod === "undefined") ) {
+            redirectReq = true;
+            redirectUrl = addAggrParams(aggrMethod, aggrPeriod, redirectUrl);
+        } else if (typeof aggrMethod !== "undefined" && typeof aggrPeriod !== "undefined") {
+            redirectUrl = addAggrParams(aggrMethod, aggrPeriod, redirectUrl);
+        }
+
+        if (redirectReq) {
+            res.location(redirectUrl);
             res.status(302).send();
             return;
         }
 
-        // Re-direct to today's date if necessary
-        if (page.getUTCHours() !== 0 || page.getUTCMinutes() !== 0 || page.getUTCSeconds() !== 0
-            || page.getUTCMilliseconds() !== 0) {
-            page.setUTCHours(0, 0, 0, 0);
-            res.location("/data/14/" + req.params.tile_x + "/" + req.params.tile_y + "?page=" + page.toISOString());
-            res.status(302).send();
-            return;
-        }
         // convert tile to geoHashes
         const tile: ITile = {
             x: Number(req.params.tile_x),
@@ -154,7 +185,6 @@ export async function data_get_z_x_y_page(req, res) {
         try {
             if (req.query.metrics) {
                 metrics = req.query.metrics.split(",");
-                console.log("metrics:", metrics);
             } else { // option : if no metricids are given, take all from metaquery
                 metrics = await getMetricIds(AirQualityServerConfig.scopeId);
                 console.log(metrics);
@@ -193,13 +223,23 @@ export async function data_get_z_x_y_page(req, res) {
         // convert to jsonld
         try {
             const builder = new JSONLDBuilder();
-            const blob = builder.build(tile, page, QR);
+            const blob = builder.buildTile(tile, page, QR, fromDate, aggrMethod.toString(), aggrPeriod.toString());
             res.type("application/ld+json; charset=utf-8");
+            const today = new Date();
+            today.setUTCHours(0, 0, 0, 0);
+            let cacheAge: string;
+            if (page.getTime() === today.getTime()) {
+                cacheAge = "max-age=0";
+            } else {
+                cacheAge = "public, max-age=31536000";
+            }
+            res.header("Cache-control", cacheAge);
             res.send(blob);
         } catch (e) {
             res.status(400).send("jsonld convert error : " + e);
             return;
         }
+
     } catch (error) {
         console.log(error);
         res.status(400).send(error);
