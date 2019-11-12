@@ -145,6 +145,7 @@ export default class JSONLDDataBuilder {
         metricId: string,
         sensors: Set<string | number>,
         usedProcedure: string,
+        interval: string,
     ) {
         const date = new Date(time);
         const sensorArr = this.convertSensors(sensors);
@@ -152,7 +153,8 @@ export default class JSONLDDataBuilder {
             "@id": JSONLDConfig.baseURL + metricId + "/" + time,
             "@type": "sosa:Observation",
             "hasSimpleResult": value,
-            "phenomenonTime": date.toISOString(),
+            "resultTime": date.toISOString(),
+            "phenomenonTime": interval,
             "observedProperty": JSONLDConfig.baseURL + metricId,
             "madeBySensor": sensorArr,
             "usedProcedure": JSONLDConfig.baseURL + "id/" + usedProcedure,
@@ -214,6 +216,7 @@ export default class JSONLDDataBuilder {
                             mr.metricId,
                             tempSensors,
                             usedProcedure,
+                            aggrPeriod,
                         ));
                     }
                     startIntervalIndex = i;
@@ -229,6 +232,7 @@ export default class JSONLDDataBuilder {
                 mr.metricId,
                 tempSensors,
                 usedProcedure,
+                aggrPeriod,
             ));
             nextMedian = startDate;
             tempSensors.clear();
@@ -287,6 +291,7 @@ export default class JSONLDDataBuilder {
                             mr.metricId,
                             tempSensors,
                             usedProcedure,
+                            aggrPeriod,
                         );
                         avgMinuteObservations.push(nextObs);
                     }
@@ -302,6 +307,7 @@ export default class JSONLDDataBuilder {
                 mr.metricId,
                 tempSensors,
                 usedProcedure,
+                aggrPeriod,
             ));
             nextAvg = startDate;
             tempTotal = 0;
