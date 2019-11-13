@@ -256,7 +256,7 @@ export default class JSONLDDataBuilder {
     // assumptions:
     // - all observations are in the same tile
     private buildAverageObservations(results: IQueryResults, startDate: number, aggrPeriod: string) {
-        const avgMinuteObservations = [];
+        const avgObservations = [];
         // startDate + 5 minutes
         let nextAvg: number = startDate;
         const timeInterval = this.getInterval(aggrPeriod);
@@ -285,7 +285,7 @@ export default class JSONLDDataBuilder {
                 } else {
                     // only add an average if there are values in the time interval
                     if (count > 0) {
-                        const nextObs = this.buildAggregateObservation(
+                        const nextObs: any = this.buildAggregateObservation(
                             nextAvg - timeInterval,
                             tempTotal / count,
                             mr.metricId,
@@ -293,7 +293,8 @@ export default class JSONLDDataBuilder {
                             usedProcedure,
                             aggrPeriod,
                         );
-                        avgMinuteObservations.push(nextObs);
+                        nextObs.Output = { count, total: tempTotal};
+                        avgObservations.push(nextObs);
                     }
                     nextAvg += timeInterval;
                     tempTotal = 0;
@@ -301,20 +302,24 @@ export default class JSONLDDataBuilder {
                     tempSensors.clear();
                 }
             }
-            avgMinuteObservations.push(this.buildAggregateObservation(
-                nextAvg - timeInterval,
-                tempTotal / count,
-                mr.metricId,
-                tempSensors,
-                usedProcedure,
-                aggrPeriod,
-            ));
+            if (count > 0) {
+                const lastObs: any = this.buildAggregateObservation(
+                    nextAvg - timeInterval,
+                    tempTotal / count,
+                    mr.metricId,
+                    tempSensors,
+                    usedProcedure,
+                    aggrPeriod,
+                );
+                lastObs.Output = {count, total: tempTotal};
+                avgObservations.push(lastObs);
+            }
             nextAvg = startDate;
             tempTotal = 0;
             count = 0;
         }
 
-        return avgMinuteObservations;
+        return avgObservations;
     }
 
 }

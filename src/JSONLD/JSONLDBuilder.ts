@@ -14,7 +14,7 @@ export default class JSONLDBuilder {
                      aggrMethod?: string, aggrPeriod?: string): object {
         const dataBuilder = new JSONLDDataBuilder();
         const documentBuilder = new JSONLDDocumentBuilder();
-        const blob = documentBuilder.buildTile(tile, page);
+        const blob = documentBuilder.buildTile(tile, page, aggrMethod, aggrPeriod);
         blob["@context"] = JSONLDConfig.context;
         blob["@graph"] = dataBuilder.build(results, fromDate, aggrMethod, aggrPeriod);
         return blob;
