@@ -32,12 +32,12 @@ http://localhost:5000/data/14/{x}/{y}{?page,aggrMethod,aggrPeriod}
 
 Where `x` and `y` are the coordinates of a certain tile and `page` is an ISO date that determines the day the air quality measurements were taken. 
 `aggrMethod` and `aggrPeriod` define the used aggregation method and time interval for the aggregation respectively.
- Types for `aggrMethod` currently are `average` and `median`. Types for `aggrPeriod` are `minute`, `hour` and `day`.
+ Types for `aggrMethod` currently are `average` and `median`. Types for `aggrPeriod` are `min`, `hour` and `day`.
  If these two parameters are undefined, the raw data is queried.
 For example:
 
 ```
-http://localhost:3000/data/14/8392/5467?page=2019-08-06T00:00:00.000Z&aggrMethod=median&aggrPeriod=hour
+http://localhost:5000/data/14/8392/5467?page=2019-08-06T00:00:00.000Z&aggrMethod=median&aggrPeriod=hour
 ```
 
 
