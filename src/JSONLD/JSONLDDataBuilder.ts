@@ -140,7 +140,7 @@ export default class JSONLDDataBuilder {
     }
 
     private buildAggregateObservation(
-        time: (number | string),
+        time: number,
         value: (number | string),
         metricId: string,
         sensors: Set<string | number>,
@@ -148,13 +148,19 @@ export default class JSONLDDataBuilder {
         interval: string,
     ) {
         const date = new Date(time);
+        const intervalNumber = this.getInterval(interval);
         const sensorArr = this.convertSensors(sensors);
         return {
             "@id": JSONLDConfig.baseURL + metricId + "/" + time,
             "@type": "sosa:Observation",
             "hasSimpleResult": value,
             "resultTime": date.toISOString(),
-            "phenomenonTime": interval,
+            "phenomenonTime": {"rdf:type": "time:Interval",
+                "time:hasBeginning": {"rdf:type": "time:Instant",
+                    "time:inXSDDateTimeStamp": new Date(time).toISOString() },
+                "time:hasEnd": {
+                    "rdf:type": "time:Instant",
+                    "time:inXSDDateTimeStamp": new Date(time + intervalNumber).toISOString() }},
             "observedProperty": JSONLDConfig.baseURL + metricId,
             "madeBySensor": sensorArr,
             "usedProcedure": JSONLDConfig.baseURL + "id/" + usedProcedure,

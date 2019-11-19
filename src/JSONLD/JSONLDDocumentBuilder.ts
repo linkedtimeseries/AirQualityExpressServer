@@ -14,7 +14,9 @@ export default class JSONLDDocumentBuilder {
     }
 
     public buildTile(tile: ITile, page: Date, aggrMethod?: string, aggrPeriod?: string): object {
-        return Object.assign({}, this.buildTilesInfo(tile, page, aggrMethod, aggrPeriod), this.buildDctermsInfo());
+        return Object.assign({},
+            this.buildTilesInfo(tile, page, aggrMethod, aggrPeriod),
+            this.buildDctermsInfo(tile, aggrMethod, aggrPeriod));
     }
 
     private buildTileURI(tile: ITile, page: Date, aggrMethod?: string, aggrPeriod?: string) {
@@ -81,10 +83,14 @@ export default class JSONLDDocumentBuilder {
         ];
     }
 
-    private buildDctermsInfo(): object {
+    private buildDctermsInfo(tile: ITile, aggrMethod?: string, aggrPeriod?: string): object {
+        let id: string = `${JSONLDConfig.openObeliskAddress}/data/14/${tile.x}/${tile.y}/`;
+        if (typeof aggrMethod !== "undefined") {
+            id += `?aggrMethod=${aggrMethod}&aggrPeriod=${aggrPeriod}`;
+        }
         return {
             "dcterms:isPartOf": {
-                "@id": JSONLDConfig.openObeliskAddress,
+                "@id": id,
                 "@type": "hydra:Collection",
                 "dcterms:license": this.airQualityServerConfig.dcterms_license,
                 "dcterms:rights": this.airQualityServerConfig.dcterms_rights,
