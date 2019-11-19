@@ -212,10 +212,10 @@ export async function data_get_z_x_y_page(req, res) {
             QR = await Promise.all(qRes).then((data) => {
                 return processEvents(data, geoHashUtils, metrics);
             });
-            if (QR.isEmpty()) {
-                res.status(400).send("query error : no results");
-                return;
-            }
+            // if (QR.isEmpty()) {
+            //     res.status(400).send("query error : no results");
+            //     return;
+            // }
         } catch (e) {
             res.status(400).send("query error : " + e);
             return;
