@@ -140,12 +140,12 @@ export async function data_get_z_x_y_page(req, res) {
         if (page.toString() === "Invalid Date") {
             redirectReq = true;
             const today = new Date();
-            today.setUTCHours(0, 0, 0, 0);
+            today.setUTCMinutes( 0, 0, 0);
             page = today;
-        } else if (page.getUTCHours() !== 0 || page.getUTCMinutes() !== 0 || page.getUTCSeconds() !== 0
+        } else if (page.getUTCMinutes() !== 0 || page.getUTCSeconds() !== 0
             || page.getUTCMilliseconds() !== 0) {
             redirectReq = true;
-            page.setUTCHours(0, 0, 0, 0);
+            page.setUTCMinutes(0, 0, 0);
         }
         redirectUrl += "?page=" + page.toISOString();
 
