@@ -182,12 +182,6 @@ export default class JSONLDDataBuilder {
                 return JSONLDConfig.minuteInterval;
             case "hour":
                 return JSONLDConfig.hourInterval;
-            case "day":
-                return JSONLDConfig.dayInterval;
-            case "month":
-                return JSONLDConfig.monthInterval;
-            case "year":
-                return JSONLDConfig.yearInterval;
         }
     }
 

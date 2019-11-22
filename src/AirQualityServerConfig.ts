@@ -2,7 +2,7 @@
 
 export default class AirQualityServerConfig {
     public static readonly scopeId = "cot.airquality";
-    public static readonly dateTimeFrame = 3600000; // window is 1 day in msec
+    public static readonly dateTimeFrame = 3600000; // window is 1 hour in msec
     public static readonly geoHashColumnName = "geohash";
     public static readonly sourceIdColumnName = "sourceId";
     public static readonly timeColumnName = "time";

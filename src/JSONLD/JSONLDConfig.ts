@@ -74,7 +74,4 @@ export default abstract class JSONLDConfig {
     // intervals to calculate averages
     public static readonly minuteInterval: number = 60000;
     public static readonly hourInterval: number = 3600000;
-    public static readonly dayInterval: number = 86400000;
-    public static readonly monthInterval: number = 2592000000;
-    public static readonly yearInterval: number = 31556952000;
 }
