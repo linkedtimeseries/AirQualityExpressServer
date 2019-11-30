@@ -21,15 +21,8 @@ export default class JSONLDDataBuilder {
             this.buildSensors(results),
 
         );
-        if (! (aggrMethod === "undefined" && aggrPeriod === "undefined")) {
-            const aggrPeriods = new Set(["min", "hour", "day", "month"]);
-            const aggrMethods = new Set(["average", "median"]);
-            if (!aggrMethods.has(aggrMethod)) {
-                aggrMethod = "median";
-            }
-            if (!aggrPeriod || !aggrPeriods.has(aggrPeriod)) {
-                aggrPeriod = "hour";
-            }
+        if (! (typeof aggrMethod === "undefined" || typeof aggrPeriod === "undefined")) {
+
             if (aggrMethod === "median") {
                 return graph.concat(this.buildMedianObservations(results, fromDate, aggrPeriod));
             } else {

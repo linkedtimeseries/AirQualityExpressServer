@@ -131,10 +131,11 @@ export async function data_get_z_x_y_page(req, res) {
     let QR: IQueryResults;
 
     try {
+        console.log(req.query);
         let redirectReq: boolean = false;
         page = new Date(decodeURIComponent(req.query.page));
-        const aggrMethod = decodeURIComponent(req.query.aggrMethod);
-        const aggrPeriod = decodeURIComponent(req.query.aggrPeriod);
+        const aggrMethod = req.query.aggrMethod;
+        const aggrPeriod = req.query.aggrPeriod;
         let redirectUrl = "/data/14/" + req.params.tile_x + "/" + req.params.tile_y;
         // Re-direct to now time if no date is provided
         if (page.toString() === "Invalid Date") {
@@ -148,12 +149,15 @@ export async function data_get_z_x_y_page(req, res) {
             page.setUTCMinutes(0, 0, 0);
         }
         redirectUrl += "?page=" + page.toISOString();
-
+        const aggrMethods = new Set(["average", "median"]);
+        const aggrPeriods = new Set(["min", "hour"]);
         if ((typeof aggrMethod !== "undefined" && typeof aggrPeriod === "undefined") ||
-            (typeof aggrPeriod !== "undefined" && typeof aggrMethod === "undefined") ) {
-            redirectReq = true;
-            redirectUrl = addAggrParams(aggrMethod, aggrPeriod, redirectUrl);
-        } else if (typeof aggrMethod !== "undefined" && typeof aggrPeriod !== "undefined") {
+            (typeof aggrPeriod !== "undefined" && typeof aggrMethod === "undefined") ||
+            ((typeof aggrPeriod !== "undefined" && typeof aggrMethod !== "undefined") &&
+                (! aggrMethods.has(aggrMethod) || ! aggrPeriods.has(aggrPeriod) ))) {
+            res.status(400).send("Both aggregation method and aggregation period need to be defined");
+            return;
+        } else if (aggrMethod !== "undefined" && aggrPeriod !== "undefined") {
             redirectUrl = addAggrParams(aggrMethod, aggrPeriod, redirectUrl);
         }
 
@@ -223,7 +227,8 @@ export async function data_get_z_x_y_page(req, res) {
         // convert to jsonld
         try {
             const builder = new JSONLDBuilder();
-            const blob = builder.buildTile(tile, page, QR, fromDate, aggrMethod.toString(), aggrPeriod.toString());
+
+            const blob = builder.buildTile(tile, page, QR, fromDate, aggrMethod, aggrPeriod);
             res.type("application/ld+json; charset=utf-8");
             const today = new Date();
             today.setUTCHours(0, 0, 0, 0);
