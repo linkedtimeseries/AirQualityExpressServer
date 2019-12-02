@@ -179,7 +179,7 @@ export default class JSONLDDataBuilder {
     }
 
     private buildMedianObservations(results: IQueryResults, startDate: number, aggrPeriod: string) {
-        const avgMedianObservations = [];
+        const medianObservations = [];
         // startDate + 5 minutes
         let nextMedian: number = startDate;
         const timeInterval = this.getInterval(aggrPeriod);
@@ -203,7 +203,7 @@ export default class JSONLDDataBuilder {
                     if (i > startIntervalIndex) {
                         const medianResults = mr.values.slice(startIntervalIndex, i);
                         const median = this.getMedian(medianResults, colNrValue);
-                        avgMedianObservations.push(this.buildAggregateObservation(
+                        medianObservations.push(this.buildAggregateObservation(
                             nextMedian - timeInterval,
                             median,
                             mr.metricId,
@@ -219,7 +219,7 @@ export default class JSONLDDataBuilder {
             }
             const medianResults = mr.values.slice(startIntervalIndex);
             const median = this.getMedian(medianResults, colNrValue);
-            avgMedianObservations.push(this.buildAggregateObservation(
+            medianObservations.push(this.buildAggregateObservation(
                 nextMedian - timeInterval,
                 median,
                 mr.metricId,
@@ -231,7 +231,7 @@ export default class JSONLDDataBuilder {
             tempSensors.clear();
         }
 
-        return avgMedianObservations;
+        return medianObservations;
     }
 
     private getMedian(medianResults, colNrValue: number): number {
