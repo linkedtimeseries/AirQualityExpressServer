@@ -21,15 +21,8 @@ export default class JSONLDDataBuilder {
             this.buildSensors(results),
 
         );
-        if (! (aggrMethod === "undefined" && aggrPeriod === "undefined")) {
-            const aggrPeriods = new Set(["min", "hour", "day", "month"]);
-            const aggrMethods = new Set(["average", "median"]);
-            if (!aggrMethods.has(aggrMethod)) {
-                aggrMethod = "median";
-            }
-            if (!aggrPeriod || !aggrPeriods.has(aggrPeriod)) {
-                aggrPeriod = "hour";
-            }
+        if (! (typeof aggrMethod === "undefined" || typeof aggrPeriod === "undefined")) {
+
             if (aggrMethod === "median") {
                 return graph.concat(this.buildMedianObservations(results, fromDate, aggrPeriod));
             } else {
@@ -140,19 +133,27 @@ export default class JSONLDDataBuilder {
     }
 
     private buildAggregateObservation(
-        time: (number | string),
+        time: number,
         value: (number | string),
         metricId: string,
         sensors: Set<string | number>,
         usedProcedure: string,
+        interval: string,
     ) {
         const date = new Date(time);
+        const intervalNumber = this.getInterval(interval);
         const sensorArr = this.convertSensors(sensors);
         return {
             "@id": JSONLDConfig.baseURL + metricId + "/" + time,
             "@type": "sosa:Observation",
             "hasSimpleResult": value,
             "resultTime": date.toISOString(),
+            "phenomenonTime": {"rdf:type": "time:Interval",
+                "time:hasBeginning": {"rdf:type": "time:Instant",
+                    "time:inXSDDateTimeStamp": new Date(time).toISOString() },
+                "time:hasEnd": {
+                    "rdf:type": "time:Instant",
+                    "time:inXSDDateTimeStamp": new Date(time + intervalNumber).toISOString() }},
             "observedProperty": JSONLDConfig.baseURL + metricId,
             "madeBySensor": sensorArr,
             "usedProcedure": JSONLDConfig.baseURL + "id/" + usedProcedure,
@@ -174,17 +175,11 @@ export default class JSONLDDataBuilder {
                 return JSONLDConfig.minuteInterval;
             case "hour":
                 return JSONLDConfig.hourInterval;
-            case "day":
-                return JSONLDConfig.dayInterval;
-            case "month":
-                return JSONLDConfig.monthInterval;
-            case "year":
-                return JSONLDConfig.yearInterval;
         }
     }
 
     private buildMedianObservations(results: IQueryResults, startDate: number, aggrPeriod: string) {
-        const avgMedianObservations = [];
+        const medianObservations = [];
         // startDate + 5 minutes
         let nextMedian: number = startDate;
         const timeInterval = this.getInterval(aggrPeriod);
@@ -208,12 +203,13 @@ export default class JSONLDDataBuilder {
                     if (i > startIntervalIndex) {
                         const medianResults = mr.values.slice(startIntervalIndex, i);
                         const median = this.getMedian(medianResults, colNrValue);
-                        avgMedianObservations.push(this.buildAggregateObservation(
+                        medianObservations.push(this.buildAggregateObservation(
                             nextMedian - timeInterval,
                             median,
                             mr.metricId,
                             tempSensors,
                             usedProcedure,
+                            aggrPeriod,
                         ));
                     }
                     startIntervalIndex = i;
@@ -223,18 +219,19 @@ export default class JSONLDDataBuilder {
             }
             const medianResults = mr.values.slice(startIntervalIndex);
             const median = this.getMedian(medianResults, colNrValue);
-            avgMedianObservations.push(this.buildAggregateObservation(
+            medianObservations.push(this.buildAggregateObservation(
                 nextMedian - timeInterval,
                 median,
                 mr.metricId,
                 tempSensors,
                 usedProcedure,
+                aggrPeriod,
             ));
             nextMedian = startDate;
             tempSensors.clear();
         }
 
-        return avgMedianObservations;
+        return medianObservations;
     }
 
     private getMedian(medianResults, colNrValue: number): number {
@@ -252,7 +249,7 @@ export default class JSONLDDataBuilder {
     // assumptions:
     // - all observations are in the same tile
     private buildAverageObservations(results: IQueryResults, startDate: number, aggrPeriod: string) {
-        const avgMinuteObservations = [];
+        const avgObservations = [];
         // startDate + 5 minutes
         let nextAvg: number = startDate;
         const timeInterval = this.getInterval(aggrPeriod);
@@ -281,14 +278,16 @@ export default class JSONLDDataBuilder {
                 } else {
                     // only add an average if there are values in the time interval
                     if (count > 0) {
-                        const nextObs = this.buildAggregateObservation(
+                        const nextObs: any = this.buildAggregateObservation(
                             nextAvg - timeInterval,
                             tempTotal / count,
                             mr.metricId,
                             tempSensors,
                             usedProcedure,
+                            aggrPeriod,
                         );
-                        avgMinuteObservations.push(nextObs);
+                        nextObs.Output = { count, total: tempTotal};
+                        avgObservations.push(nextObs);
                     }
                     nextAvg += timeInterval;
                     tempTotal = 0;
@@ -296,19 +295,24 @@ export default class JSONLDDataBuilder {
                     tempSensors.clear();
                 }
             }
-            avgMinuteObservations.push(this.buildAggregateObservation(
-                nextAvg - timeInterval,
-                tempTotal / count,
-                mr.metricId,
-                tempSensors,
-                usedProcedure,
-            ));
+            if (count > 0) {
+                const lastObs: any = this.buildAggregateObservation(
+                    nextAvg - timeInterval,
+                    tempTotal / count,
+                    mr.metricId,
+                    tempSensors,
+                    usedProcedure,
+                    aggrPeriod,
+                );
+                lastObs.Output = {count, total: tempTotal};
+                avgObservations.push(lastObs);
+            }
             nextAvg = startDate;
             tempTotal = 0;
             count = 0;
         }
 
-        return avgMinuteObservations;
+        return avgObservations;
     }
 
 }

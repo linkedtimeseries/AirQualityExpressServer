@@ -19,6 +19,14 @@ export default abstract class JSONLDConfig {
             "@id": "http://www.w3.org/ns/sosa/observedProperty",
             "@type": "@id",
         },
+        phenomenonTime: {
+            "@id": "http://www.w3.org/ns/sosa/phenomenonTime",
+            "@type": "@id",
+        },
+        usedProcedure: {
+            "@id": "http://www.w3.org/ns/sosa/usedProcedure",
+            "@type": "@id",
+        },
         madeBySensor: {
             "@id": "http://www.w3.org/ns/sosa/madeBySensor",
             "@type": "@id",
@@ -26,6 +34,10 @@ export default abstract class JSONLDConfig {
         resultTime: {
             "@id": "http://www.w3.org/ns/sosa/resultTime",
             "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+        },
+        output: {
+            "@id": "http://www.w3.org/ns/ssn/Output",
+            "@type": "@id",
         },
         label: {
             "@id": "http://www.w3.org/2000/01/rdf-schema#label",
@@ -58,11 +70,8 @@ export default abstract class JSONLDConfig {
     };
     public static readonly FeatureOfInterest: string = "AirQuality";
     public static readonly baseURL: string = "http://example.org/data/";
-    public static readonly openObeliskAddress = "https://lodi.ilabt.imec.be/air";
+    public static readonly openObeliskAddress = "http://localhost:5000";
     // intervals to calculate averages
-    public static readonly minuteInterval: number = 300000;
+    public static readonly minuteInterval: number = 60000;
     public static readonly hourInterval: number = 3600000;
-    public static readonly dayInterval: number = 86400000;
-    public static readonly monthInterval: number = 2592000000;
-    public static readonly yearInterval: number = 31556952000;
 }
