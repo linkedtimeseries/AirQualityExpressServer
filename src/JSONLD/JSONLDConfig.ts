@@ -21,7 +21,7 @@ export default abstract class JSONLDConfig {
         },
         phenomenonTime: {
             "@id": "http://www.w3.org/ns/sosa/phenomenonTime",
-            "@type": "@id",
+            "@type": "https://www.w3.org/TR/owl-time/#time:Interval",
         },
         usedProcedure: {
             "@id": "http://www.w3.org/ns/sosa/usedProcedure",
@@ -67,6 +67,20 @@ export default abstract class JSONLDConfig {
         tiles: "https://w3id.org/tree/terms#",
         dcterms: "http://purl.org/dc/terms/",
         hydra: "http://www.wr.org/ns/hydra/core#",
+        time: "https://www.w3.org/TR/owl-time/",
+        hasBeginning: {
+            "@id" : "https://www.w3.org/TR/owl-time/#time:hasBeginning",
+            "@type" : "https://www.w3.org/TR/owl-time/#time:Instant",
+        },
+        inXSDDateTimeStamp: {
+            "@id" : "https://www.w3.org/TR/owl-time/#time:inXSDDateTimeStamp",
+            "@type" : "@id",
+        },
+        hasEnd: {
+            "@id" : "https://www.w3.org/TR/owl-time/#time:hasEnd",
+            "@type" : "https://www.w3.org/TR/owl-time/#time:Instant",
+        },
+
     };
     public static readonly FeatureOfInterest: string = "AirQuality";
     public static readonly baseURL: string = "http://example.org/data/";
