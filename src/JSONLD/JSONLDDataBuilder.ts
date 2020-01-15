@@ -148,12 +148,11 @@ export default class JSONLDDataBuilder {
             "@type": "sosa:Observation",
             "hasSimpleResult": value,
             "resultTime": date.toISOString(),
-            "phenomenonTime": {"rdf:type": "time:Interval",
-                "time:hasBeginning": {"rdf:type": "time:Instant",
-                    "time:inXSDDateTimeStamp": new Date(time).toISOString() },
-                "time:hasEnd": {
-                    "rdf:type": "time:Instant",
-                    "time:inXSDDateTimeStamp": new Date(time + intervalNumber).toISOString() }},
+            "phenomenonTime": {
+                hasBeginning: {
+                    inXSDDateTimeStamp: new Date(time).toISOString() },
+                hasEnd: {
+                    inXSDDateTimeStamp: new Date(time + intervalNumber).toISOString() }},
             "observedProperty": JSONLDConfig.baseURL + metricId,
             "madeBySensor": sensorArr,
             "usedProcedure": JSONLDConfig.baseURL + "id/" + usedProcedure,
