@@ -59,7 +59,7 @@ async function startGetMetricIds(scopeId: string): Promise<void> {
     const metadata: IObeliskMetadataMetricsQueryCodeAndResults = await (
         new ObeliskQueryMetadata(AirQualityServerConfig.scopeId, await getAuth(), true)
     ).getMetrics();
-    for (const x of metadata.results) {
+    for (const x of metadata.results.data) {
         metricIds.push(x.id);
     }
 }
@@ -81,13 +81,13 @@ function processEvents(data: IObeliskSpatialQueryCodeAndResults[], geoHashUtils:
     for (const d of data) {
         if ((d.responseCode === 200) && (d.results != null)) {
             if (queryResults.columns.length === 0) {
-                queryResults.columns = d.results.columns;
+                queryResults.columns = d.results.data.columns;
             }
             const metricResults: IMetricResults = new MetricResults(metrics[id]);
             id++;
             // filter geoHashes - within tile requirement
-            const colNr = d.results.columns.indexOf(AirQualityServerConfig.geoHashColumnName);
-            for (const r of d.results.values) {
+            const colNr = d.results.data.columns.indexOf(AirQualityServerConfig.geoHashColumnName);
+            for (const r of d.results.data.values) {
                 const ii = geoHashUtils.isWithinTile(r[colNr].toString());
                 if (ii) {
                     metricResults.addValues(r);

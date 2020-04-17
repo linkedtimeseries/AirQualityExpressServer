@@ -9,7 +9,9 @@ export interface IObeliskSpatialQueryResults {
 
 export interface IObeliskSpatialQueryCodeAndResults {
     responseCode: number;
-    results: IObeliskSpatialQueryResults;
+    results: {
+        data: IObeliskSpatialQueryResults,
+    };
 }
 
 export interface IObeliskMetadataMetricsQueryResults {
@@ -19,5 +21,7 @@ export interface IObeliskMetadataMetricsQueryResults {
 
 export interface IObeliskMetadataMetricsQueryCodeAndResults {
     responseCode: number;
-    results: IObeliskMetadataMetricsQueryResults[];
+    results: {
+        data: IObeliskMetadataMetricsQueryResults[],
+    };
 }
