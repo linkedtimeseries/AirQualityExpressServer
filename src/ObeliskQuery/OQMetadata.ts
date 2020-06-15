@@ -15,7 +15,7 @@ export default class ObeliskQueryMetadata {
     public async getMetrics(): Promise<IObeliskMetadataMetricsQueryCodeAndResults> {
         let resultsStatus: number;
         let results: any;
-        const url = ObeliskQueryMetadata.address + "/api/v1/scopes/" + this.scopeId + "/metrics";
+        const url = ObeliskQueryMetadata.address + "/api/v2/scopes/" + this.scopeId + "/metrics";
         await fetch(url, { headers: this.auth.resourceCallAuthorizationHeader() })
             .then((res) => {
                 resultsStatus = res.status;

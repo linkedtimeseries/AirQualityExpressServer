@@ -23,12 +23,11 @@ export default class ObeliskDataRetrievalOperations {
         let resultsStatus: number;
         let results: any;
         let url = ObeliskDataRetrievalOperations.address
-            + "/api/v1/scopes/" + this.scopeId
-            + "/query/" + metricId + "/events"
+            + "/api/v2/scopes/" + this.scopeId
+            + "/metrics/" + metricId + "/events"
             + "?"
             + "area=" + geoHash.join(",")
             + "&spatialIndex=geohash";
-
         if (fromTimeMs && toTimeMs) {
             url += "&" + querystring.stringify({ from: fromTimeMs.toString(), to: toTimeMs.toString() });
         }
