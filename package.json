@@ -20,7 +20,7 @@
     "ip": "^1.1.5",
     "ngeohash": "^0.6.3",
     "node-fetch": "^2.6.0",
-    "pug": "^2.0.0-rc.3",
+    "pug": "^3.0.1",
     "query-string": "^6.5.0"
   },
   "pre-commit": [
